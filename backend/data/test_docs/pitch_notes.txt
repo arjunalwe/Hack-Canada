@@ -1,0 +1,68 @@
+PITCH DECK — DRAFT NOTES
+========================
+
+Slide 1: Title
+- Working name: "AgriSense" or "CropVision" — need to decide
+- Tagline brainstorm: "See disease before it sees you" / "The future of farming is invisible"
+
+Slide 2: Problem
+- $220B in annual crop losses globally from plant diseases
+- Farmers detect disease too late — by the time you see brown spots, the damage is done
+- Current solutions: walk the field (expensive, slow), satellite imagery (too low resolution)
+- In Canada specifically: $7.2B in crop losses per year
+- Climate change is making disease prediction harder — new patterns, new pathogens
+
+Slide 3: Solution
+- Drone-based hyperspectral imaging + AI
+- We can detect diseases 5-14 DAYS before any symptoms are visible
+- Patent-pending spectral fingerprinting technology
+- Think of it as "thermal vision for crops" but way more sophisticated
+
+Slide 4: Technology
+- SpectralFormer model: 96.3% accuracy, runs on edge devices
+- 2.4M image training dataset (largest of its kind)
+- Real-time processing: 15 hectares per hour
+- Patent filed: CA 2024/0078432
+
+Slide 5: Market
+- Precision agriculture market: $12.8B by 2027 (Grandview Research)
+- Canada ag-tech: $1.2B TAM
+- Drone crop monitoring specifically: $5.7B globally by 2028
+- Our beachhead: Ontario grain farmers (8,200 farms, ~$240M addressable)
+
+Slide 6: Business Model
+- SaaS subscription: $4.50/hectare/season
+- Average Ontario grain farm: 500 hectares = $2,250/year per customer
+- Hardware kit (drone + sensor): $3,400 one-time (or lease $89/month)
+- Enterprise tier: unlimited monitoring + agronomist dashboard
+- Future: crop insurance partnerships (data-driven premium reduction)
+
+Slide 7: Traction
+- 12 commercial farm deployments (Ontario, 2024 season)
+- 67% reduction in pesticide usage on pilot farms
+- $180K in pilot revenue
+- LOIs from 3 major grain cooperatives
+- Partnership discussion with Bayer CropScience (NDA signed)
+
+Slide 8: Team
+- Dr. Sarah Chen (CEO): 15 years in computer vision, ex-Google Brain, UWaterloo prof
+- Dr. Raj Patel (CTO): Hyperspectral imaging expert, 8 patents, ex-Planet Labs
+- Dr. Emily Zhao (Head of Agronomy): Former OMAFRA senior researcher, 20 years in crop science
+- 4 ML engineers, 2 agronomists, 1 drone systems engineer
+
+Slide 9: Ask
+- Raising $2.5M seed round
+- Use of funds:
+  - 40% engineering (scale platform, improve model)
+  - 25% sales & BD (expand beyond Ontario)
+  - 20% data collection (more crops, more regions)
+  - 15% operations & regulatory
+- Target close: Q2 2025
+- Ideal investors: ag-tech focused, Series A track record in Canada
+
+Slide 10: Vision
+- Year 1: Ontario grain farms (500 customers)
+- Year 2: Expand to Western Canada (canola, wheat)
+- Year 3: US Midwest expansion
+- Year 5: Global platform — every crop, every continent
+- Long-term: become the "Bloomberg Terminal" for farm intelligence

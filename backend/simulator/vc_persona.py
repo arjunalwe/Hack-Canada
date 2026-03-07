@@ -1,15 +1,17 @@
 """Adversarial VC Simulator — Gemini persona + ElevenLabs TTS."""
 
 from typing import Any, AsyncIterator, Dict
+import hashlib
 
-import google.generativeai as genai
+import json
+import re
+from backboard import BackboardClient
 import httpx
 
 from config import settings
 
-# ── Gemini setup ────────────────────────────────────────────
-genai.configure(api_key=settings.GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-2.0-flash")
+# ── Backboard setup ────────────────────────────────────────────
+client = BackboardClient(api_key=settings.BACKBOARD_API_KEY)
 
 
 async def generate_vc_question(data: Dict[str, Any]) -> str:
@@ -38,24 +40,55 @@ deeply understand their space and see a SPECIFIC flaw.
 
 Return ONLY the question. No preamble, no commentary.
 """
-    response = model.generate_content(prompt)
-    return response.text.strip()
+    assistant = await client.create_assistant(name="VC Simulator", system_prompt="You are a VC.")
+    thread = await client.create_thread(assistant.assistant_id)
+    response = await client.add_message(
+        thread_id=thread.thread_id,
+        content=prompt,
+        stream=False
+    )
+    return response.content.strip()
 
 
-async def stream_audio_response(text: str) -> AsyncIterator[bytes]:
+# ── ElevenLabs Standard Voices ──────────────────────────────
+# A curated list of distinct ElevenLabs voices (male and female)
+AVAILABLE_VOICES = [
+    "21m00Tcm4TlvDq8ikWAM",  # Rachel (calm, American)
+    "29vD33N1CtxCmqQRPOHJ",  # Drew (news, American)
+    "2EiwWnXFnvU5JabPnv8n",  # Clyde (deep, authoritative)
+    "5Q0t7uMcjvnagumLfvZi",  # Paul (ground reporter)
+    "AZnzlk1XvdvUeBnXmlld",  # Domi (strong, emotional)
+    "CYw3kZ02Hs0563khs1Fj",  # Dave (conversational, British)
+    "D38z5RcWu1voky8WS1ja",  # Fin (old, sailor, Irish)
+    "EXAVITQu4vr4xnSDxMaL",  # Sarah (calm, measured)
+    "ErXwobaYiN019PkySvjV",  # Antoni (well-rounded)
+    "VR6AewLTigWG4xSOukaG",  # Thomas (calm)
+    "pNInz6obpgDQGcFmaJgB",  # Adam (deep)
+    "yoZ06aMxZJJ28mfd3POQ",  # Sam (trustworthy)
+]
+
+def _get_voice_for_vc(vc_name: str) -> str:
+    """Deterministically pick a consistent voice ID for a given VC name."""
+    if not vc_name:
+        return AVAILABLE_VOICES[0]
+    # Hash the VC name to get a consistent integer, then modulo by list length
+    hash_int = int(hashlib.sha256(vc_name.encode('utf-8')).hexdigest(), 16)
+    return AVAILABLE_VOICES[hash_int % len(AVAILABLE_VOICES)]
+
+async def stream_audio_response(text: str, vc_name: str = "") -> AsyncIterator[bytes]:
     """Stream TTS audio from ElevenLabs for the given text.
 
-    Returns an async byte iterator suitable for FastAPI's StreamingResponse.
-    Falls back to an error message if ElevenLabs is not configured.
+    Deterministically selects a voice ID based on the vc_name, ensuring
+    each VC sounds consistent every time you pitch them.
     """
-    if not settings.ELEVENLABS_API_KEY or not settings.ELEVENLABS_VOICE_ID:
-        # Return a simple error indicator — frontend can handle gracefully
+    if not settings.ELEVENLABS_API_KEY:
         raise ValueError(
-            "ElevenLabs API key or voice ID not configured. "
-            "Set ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID in .env"
+            "ElevenLabs API key not configured. "
+            "Set ELEVENLABS_API_KEY in .env"
         )
 
-    url = f"https://api.elevenlabs.io/v1/text-to-speech/{settings.ELEVENLABS_VOICE_ID}/stream"
+    voice_id = _get_voice_for_vc(vc_name)
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream"
 
     async with httpx.AsyncClient() as client:
         async with client.stream(
@@ -120,12 +153,16 @@ Return a JSON object:
 
 Return ONLY valid JSON.
 """
-    response = model.generate_content(prompt)
-    raw = response.text.strip()
+    assistant = await client.create_assistant(name="Pitch Coach", system_prompt="You evaluate pitches.")
+    thread = await client.create_thread(assistant.assistant_id)
+    response = await client.add_message(
+        thread_id=thread.thread_id,
+        content=prompt,
+        stream=False
+    )
+    raw = response.content.strip()
 
     # Parse JSON from response
-    import json
-    import re
     cleaned = re.sub(r"^```(?:json)?\s*", "", raw)
     cleaned = re.sub(r"\s*```$", "", cleaned)
     try:

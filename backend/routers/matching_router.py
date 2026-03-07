@@ -47,14 +47,14 @@ async def match_startup_agentic(
     top_n: int = 5,
     user: dict = Depends(get_current_user),
 ):
-    """Agentic AI matching — runs a multi-agent pipeline with Gemini.
+    """Agentic AI matching — runs a multi-agent pipeline with Backboard.io.
 
     Uses 3 specialized AI agents:
     1. Startup Analyst — deep analysis of the startup
     2. VC Profiler — analyzes each candidate VC's real thesis
     3. Match Reasoner — produces detailed match justifications
 
-    Note: This takes 30-90 seconds due to multiple Gemini API calls.
+    Note: This takes 30-90 seconds due to multiple LLM calls.
     """
     vc_database = load_vc_database()
     result = await run_agentic_matching(

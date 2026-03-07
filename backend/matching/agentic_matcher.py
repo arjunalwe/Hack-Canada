@@ -71,11 +71,11 @@ async def _create_thread(assistant_id: str) -> str:
 
 
 async def _send_message(thread_id: str, content: str) -> str:
-    """Send a message to a Thread and return the assistant's response."""
+    """Send a message to a Thread with persistent memory enabled."""
     resp = await _client.post(
         f"{BASE_URL}/threads/{thread_id}/messages",
         headers=HEADERS,
-        data={"content": content, "stream": "false"},
+        data={"content": content, "stream": "false", "memory": "Auto"},
     )
     resp.raise_for_status()
     data = resp.json()
