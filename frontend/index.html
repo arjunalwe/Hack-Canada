@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Co-Pilot — AI Fundraising Pipeline</title>
-  <meta name="description" content="Upload your startup docs, match with investors, generate personalized outreach, and practice your pitch — all AI-powered." />
+  <meta name="description"
+    content="Upload your startup docs, match with investors, generate personalized outreach, and practice your pitch — all AI-powered." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
   <!-- ── NAV ── -->
@@ -45,16 +50,19 @@
         <div class="step-number">01</div>
         <div>
           <h2 class="step-title">Upload your startup files</h2>
-          <p class="step-subtitle">Research papers, pitch decks, financials, code — anything. The AI reads everything and builds your startup profile.</p>
+          <p class="step-subtitle">Research papers, pitch decks, financials, code — anything. The AI reads everything
+            and builds your startup profile.</p>
         </div>
       </div>
 
       <!-- Drop zone -->
       <div class="brain-dropzone" id="brainDropzone">
         <div class="dropzone-icon">📄</div>
-        <p class="dropzone-text">Drag & drop files here, or <label for="brainFileInput" class="dropzone-link">browse</label></p>
+        <p class="dropzone-text">Drag & drop files here, or <label for="brainFileInput"
+            class="dropzone-link">browse</label></p>
         <p class="dropzone-hint">PDF, DOCX, PPTX, CSV, TXT, images, code files</p>
-        <input type="file" id="brainFileInput" multiple hidden accept=".pdf,.doc,.docx,.ppt,.pptx,.csv,.json,.txt,.md,.png,.jpg,.jpeg,.webp,.py,.js,.ts,.cpp,.java,.go,.rs" />
+        <input type="file" id="brainFileInput" multiple hidden
+          accept=".pdf,.doc,.docx,.ppt,.pptx,.csv,.json,.txt,.md,.png,.jpg,.jpeg,.webp,.py,.js,.ts,.cpp,.java,.go,.rs" />
       </div>
 
       <!-- File list -->
@@ -112,46 +120,47 @@
         <div class="step-number">02</div>
         <div>
           <h2 class="step-title">Find your best investor matches</h2>
-          <p class="step-subtitle">3 Backboard AI agents analyze your startup against every VC in the database and rank them by fit.</p>
+          <p class="step-subtitle">3 Backboard AI agents analyze your startup against every VC in the database and rank
+            them by fit.</p>
+        </div>
+        </nav>
+
+        <!-- Context from Brain -->
+        <div class="match-context" id="matchContext">
+          <div class="context-card-header">
+            <span class="context-icon">🧠</span>
+            <span class="context-label">Using your synthesized profile</span>
+          </div>
+          <p class="context-pitch" id="matchContextPitch"></p>
+        </div>
+
+        <!-- Match action -->
+        <div class="match-action">
+          <button class="btn btn-primary" id="matchBtn">
+            <span class="btn-text">🤖 Find my VCs →</span>
+            <span class="btn-loader" hidden>Running 3 AI agents… (30-60s)</span>
+          </button>
+          <span class="form-note">Multi-agent pipeline: Startup Analyst → VC Profiler → Match Reasoner</span>
+        </div>
+
+        <!-- Results -->
+        <div class="match-results" id="matchResults" hidden>
+          <div class="match-results-header">
+            <h3>Your Matches</h3>
+            <span class="results-mode" id="resultsMode"></span>
+          </div>
+          <div class="results-list" id="resultsList"></div>
+          <p class="match-select-hint">Select the VCs you want to generate outreach for ↓</p>
+          <div class="step-advance">
+            <button class="btn btn-primary" id="toStep3Btn" disabled>Generate Outreach for Selected →</button>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div class="match-error" id="matchError" hidden>
+          <p id="matchErrorText"></p>
         </div>
       </div>
-
-      <!-- Context from Brain -->
-      <div class="match-context" id="matchContext">
-        <div class="context-card-header">
-          <span class="context-icon">🧠</span>
-          <span class="context-label">Using your synthesized profile</span>
-        </div>
-        <p class="context-pitch" id="matchContextPitch"></p>
-      </div>
-
-      <!-- Match action -->
-      <div class="match-action">
-        <button class="btn btn-primary" id="matchBtn">
-          <span class="btn-text">🤖 Find my VCs →</span>
-          <span class="btn-loader" hidden>Running 3 AI agents… (30-60s)</span>
-        </button>
-        <span class="form-note">Multi-agent pipeline: Startup Analyst → VC Profiler → Match Reasoner</span>
-      </div>
-
-      <!-- Results -->
-      <div class="match-results" id="matchResults" hidden>
-        <div class="match-results-header">
-          <h3>Your Matches</h3>
-          <span class="results-mode" id="resultsMode"></span>
-        </div>
-        <div class="results-list" id="resultsList"></div>
-        <p class="match-select-hint">Select the VCs you want to generate outreach for ↓</p>
-        <div class="step-advance">
-          <button class="btn btn-primary" id="toStep3Btn" disabled>Generate Outreach for Selected →</button>
-        </div>
-      </div>
-
-      <!-- Error -->
-      <div class="match-error" id="matchError" hidden>
-        <p id="matchErrorText"></p>
-      </div>
-    </div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════
@@ -163,7 +172,8 @@
         <div class="step-number">03</div>
         <div>
           <h2 class="step-title">Generate personalized outreach</h2>
-          <p class="step-subtitle">Choose what to create for each matched VC — cold emails, pitch scripts, LinkedIn DMs, executive summaries.</p>
+          <p class="step-subtitle">Choose what to create for each matched VC — cold emails, pitch scripts, LinkedIn DMs,
+            executive summaries.</p>
         </div>
       </div>
 
@@ -215,7 +225,8 @@
         <div class="step-number">04</div>
         <div>
           <h2 class="step-title">Practice your pitch</h2>
-          <p class="step-subtitle">Face an AI venture capitalist modelled on your matched VCs. Speak your answers. Get dual-agent feedback.</p>
+          <p class="step-subtitle">Face an AI venture capitalist modelled on your matched VCs. Speak your answers. Get
+            dual-agent feedback.</p>
         </div>
       </div>
 
@@ -321,6 +332,188 @@
     </div>
   </footer>
 
+  <div class="feature-card">
+    <div class="feature-tag">Outreach</div>
+    <h3>AI-Written Cold Emails</h3>
+    <p>Personalized emails referencing each VC's specific thesis and portfolio — in your chosen tone.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-tag">Content</div>
+    <h3>Pitch & Summary Generator</h3>
+    <p>One-click elevator pitches and executive summaries formatted for investor decks.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-tag">Simulator</div>
+    <h3>Adversarial Pitch Practice</h3>
+    <p>Face an AI VC that asks the hard questions — aggressive, sceptical, and spoken aloud via ElevenLabs
+      text-to-speech.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-tag">Intelligence</div>
+    <h3>Live VC Database</h3>
+    <p>Continuously scraped VC profiles with sector filters, stage filters, and geographic preferences.</p>
+  </div>
+  </div>
+  </section>
+
+  <!-- ── DEMO / FORM ── -->
+  <section class="section demo-section" id="demo">
+    <div class="section-label">Try it now</div>
+    <h2 class="section-heading">Run a match<br />in seconds.</h2>
+
+    <div class="demo-wrap">
+      <form class="demo-form" id="demoForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startupName">Startup name</label>
+            <input type="text" id="startupName" placeholder="e.g. NeuralMed" />
+          </div>
+          <div class="form-group">
+            <label for="sector">Sector</label>
+            <select id="sector">
+              <option value="AI">AI</option>
+              <option value="healthtech">Healthtech</option>
+              <option value="fintech">Fintech</option>
+              <option value="cleantech">Cleantech</option>
+              <option value="deeptech">Deep Tech</option>
+              <option value="edtech">EdTech</option>
+              <option value="SaaS">SaaS</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="stage">Stage</label>
+            <select id="stage">
+              <option value="pre-seed">Pre-seed</option>
+              <option value="seed" selected>Seed</option>
+              <option value="series-a">Series A</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="fundingAsk">Funding ask ($)</label>
+            <input type="number" id="fundingAsk" placeholder="e.g. 500000" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="description">What does your startup do?</label>
+          <textarea id="description" rows="3"
+            placeholder="One clear sentence about the problem you solve and how..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="location">Location</label>
+          <input type="text" id="location" placeholder="e.g. Toronto, Ontario" />
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="matchBtn">
+            <span class="btn-text">Find my VCs →</span>
+            <span class="btn-loader" hidden>Matching…</span>
+          </button>
+          <span class="form-note">Results powered by your local API on port 8000</span>
+        </div>
+      </form>
+
+      <div class="demo-results" id="demoResults" hidden>
+        <div class="results-header">
+          <h3>Top matches</h3>
+          <span id="resultsMode" class="badge"></span>
+        </div>
+        <div class="results-list" id="resultsList"></div>
+      </div>
+
+      <div class="demo-error" id="demoError" hidden>
+        <p>⚠ Could not reach the API. Make sure the backend is running on <code>localhost:8000</code>.</p>
+        <p class="error-detail" id="errorDetail"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PITCH GENERATOR ── -->
+  <section class="section pitch-section" id="pitch">
+    <div class="section-label">Pitch Generator</div>
+    <h2 class="section-heading">60-second elevator pitch,<br />written by AI.</h2>
+
+    <div class="pitch-wrap">
+      <form class="pitch-form" id="pitchForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pitchName">Startup name</label>
+            <input type="text" id="pitchName" placeholder="e.g. NeuralMed" />
+          </div>
+          <div class="form-group">
+            <label for="pitchSector">Sector</label>
+            <select id="pitchSector">
+              <option value="AI">AI</option>
+              <option value="healthtech">Healthtech</option>
+              <option value="fintech">Fintech</option>
+              <option value="cleantech">Cleantech</option>
+              <option value="deeptech">Deep Tech</option>
+              <option value="edtech">EdTech</option>
+              <option value="SaaS">SaaS</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="pitchDescription">What does your startup do?</label>
+          <textarea id="pitchDescription" rows="3"
+            placeholder="Describe your product, the problem you solve, and your key differentiator..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pitchTechStack">Tech stack <span class="label-opt">(optional)</span></label>
+            <input type="text" id="pitchTechStack" placeholder="e.g. Python, PyTorch, AWS" />
+          </div>
+          <div class="form-group">
+            <label for="pitchMarket">Target market <span class="label-opt">(optional)</span></label>
+            <input type="text" id="pitchMarket" placeholder="e.g. Canadian hospitals" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="pitchFunding">Funding ask <span class="label-opt">(optional)</span></label>
+          <input type="text" id="pitchFunding" placeholder="e.g. $500,000 seed round" />
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="pitchBtn">
+            <span class="btn-text">Generate pitch →</span>
+            <span class="btn-loader" hidden>Generating…</span>
+          </button>
+          <span class="form-note">Powered by Gemini AI</span>
+        </div>
+      </form>
+
+      <div class="pitch-output" id="pitchOutput" hidden>
+        <div class="pitch-output-header">
+          <span class="pitch-output-label">Your elevator pitch</span>
+          <button class="pitch-copy-btn" id="pitchCopyBtn" title="Copy to clipboard">Copy</button>
+        </div>
+        <p class="pitch-text" id="pitchText"></p>
+      </div>
+
+      <div class="demo-error" id="pitchError" hidden>
+        <p>⚠ Could not reach the API. Make sure the backend is running on <code>localhost:8000</code>.</p>
+        <p class="error-detail" id="pitchErrorDetail"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">Co-Pilot</span>
+      <span class="footer-copy">Built for Hack Canada · 2026</span>
+      <div class="footer-links">
+        <a href="http://localhost:8000/docs" target="_blank">API Docs</a>
+        <a href="http://localhost:8000/health" target="_blank">Health</a>
+      </div>
+    </div>
+  </footer>
+
   <script src="app.js"></script>
 </body>
+
 </html>
