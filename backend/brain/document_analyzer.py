@@ -89,6 +89,8 @@ When analyzing documents, you:
 You are NOT just extracting — you are SYNTHESIZING and CREATING a pitchable narrative
 from raw intellectual property.
 
+CRITICAL INSTRUCTION: You MUST read every single word of the uploaded documents from start to finish. Do not skim. Do not summarize early. Pay extremely close attention to the very end of research papers and technical documents, as this is often where the most critical benchmarking data, comparison tables, and F1 scores are located. If you miss this data, you have failed your job.
+
 When asked for JSON output, return ONLY valid JSON — no markdown, no commentary.
 """
 
@@ -219,11 +221,11 @@ class DocumentAnalyzer:
 
         prompt = f"""I've uploaded {doc_count} document(s): {', '.join(filenames)}
 
-Read through ALL of them carefully. These might be research papers, code, slides,
+Read through ALL of them carefully from the very first word to the very last word. Do not skim. Pay special attention to the conclusion, results, and benchmarking sections at the ends of the documents. These might be research papers, code, slides,
 patents, data, notes, or anything else. Your job is to SYNTHESIZE everything into
 a compelling, pitchable startup concept.
 
-Think like a founder turning their research/work into a fundable startup.
+Think like a founder turning their research/work into a fundable startup. Make sure you include specific metrics and comparisons if they are present in the text.
 
 Return a JSON object:
 {{
@@ -265,8 +267,24 @@ Return a JSON object:
 }}
 
 Be creative with the startup name and tagline. Make it something a VC would remember.
-Be honest about readiness — if the materials are early-stage research, say so.
 Return ONLY valid JSON."""
+
+        # Explicitly inject raw text for small text-based files to bypass RAG chunking issues
+        raw_texts = []
+        for doc in self._documents.values():
+            fpath = doc.get("filepath", "")
+            if fpath.endswith((".txt", ".md", ".csv", ".json", ".py", ".js", ".ts", ".html", ".css")):
+                try:
+                    with open(fpath, "r", encoding="utf-8") as f:
+                        text = f.read()
+                        if len(text) < 150000:  # Inject if under ~150k chars (well within modern context windows)
+                            raw_texts.append(f"\n--- START RAW TEXT of {doc['filename']} ---\n{text}\n--- END RAW TEXT of {doc['filename']} ---\n")
+                except Exception:
+                    pass
+        
+        if raw_texts:
+            prompt += "\n\nTo ensure 100% accuracy, here is the raw, un-chunked text for some of the files. Use this exact text for your synthesis rather than relying solely on semantic search:\n"
+            prompt += "".join(raw_texts)
 
         response = await self.client.add_message(
             thread_id=thread_id,
@@ -322,6 +340,23 @@ Return JSON:
 }
 
 Use null for anything not found or inferable. Return ONLY valid JSON."""
+
+        # Explicitly inject raw text for small text-based files to bypass RAG chunking issues
+        raw_texts = []
+        for doc in self._documents.values():
+            fpath = doc.get("filepath", "")
+            if fpath.endswith((".txt", ".md", ".csv", ".json", ".py", ".js", ".ts", ".html", ".css")):
+                try:
+                    with open(fpath, "r", encoding="utf-8") as f:
+                        text = f.read()
+                        if len(text) < 150000:
+                            raw_texts.append(f"\n--- START RAW TEXT of {doc['filename']} ---\n{text}\n--- END RAW TEXT of {doc['filename']} ---\n")
+                except Exception:
+                    pass
+        
+        if raw_texts:
+            prompt += "\n\nRaw, un-chunked text context for extraction:\n"
+            prompt += "".join(raw_texts)
 
         response = await self.client.add_message(
             thread_id=thread_id, content=prompt, stream=False, memory="Auto",

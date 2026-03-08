@@ -73,9 +73,25 @@ if (startStaticBtn) {
     });
 }
 
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (window.Auth0) window.Auth0.logout();
+    });
+}
+
 /* ── Utility ─────────────────────────────────────── */
 function escHtml(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function authHeaders(extra = {}) {
+    const headers = { ...extra };
+    if (window.Auth0 && window.Auth0.getToken()) {
+        headers['Authorization'] = `Bearer ${window.Auth0.getToken()}`;
+    }
+    return headers;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -115,7 +131,7 @@ function escHtml(str) {
             try {
                 const fd = new FormData();
                 fd.append('file', file);
-                const res = await fetch(`${API}/api/brain/upload`, { method: 'POST', body: fd });
+                const res = await fetch(`${API}/api/brain/upload`, { method: 'POST', body: fd, headers: authHeaders() });
                 if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || res.statusText);
                 const data = await res.json();
                 const st = row.querySelector('.brain-file-status');
@@ -135,7 +151,7 @@ function escHtml(str) {
         synthText.hidden = true; synthLoad.hidden = false; synthBtn.disabled = true;
         errBox.hidden = true; resultBox.hidden = true;
         try {
-            const res = await fetch(`${API}/api/brain/synthesize`, { method: 'POST' });
+            const res = await fetch(`${API}/api/brain/synthesize`, { method: 'POST', headers: authHeaders() });
             if (!res.ok) throw new Error(await res.text());
             const data = await res.json();
             state.synthesis = data.synthesis || data;
@@ -184,13 +200,10 @@ function escHtml(str) {
     const loadingStatus = $('#matchLoadingStatus');
 
     const LOADING_PHASES = [
-        { pct: 10, text: 'Creating AI agents…', delay: 0 },
-        { pct: 25, text: 'Agent 1: Analyzing your startup profile…', delay: 3000 },
-        { pct: 40, text: 'Agent 2: Profiling VC investment theses…', delay: 8000 },
-        { pct: 60, text: 'Agent 2: Still profiling VCs… (this is thorough)', delay: 15000 },
-        { pct: 75, text: 'Agent 3: Running match reasoning…', delay: 25000 },
-        { pct: 85, text: 'Agent 3: Generating detailed justifications…', delay: 35000 },
-        { pct: 92, text: 'Ranking and finalizing results…', delay: 45000 },
+        { pct: 20, text: 'Running pre-filter algorithms…', delay: 0 },
+        { pct: 50, text: 'Cross-referencing startup data with VC databases…', delay: 2000 },
+        { pct: 75, text: 'AI reasoning: Evaluating fit and writing justifications…', delay: 5000 },
+        { pct: 95, text: 'Finalizing matched investor profiles…', delay: 10000 },
     ];
 
     let loadingTimers = [];
@@ -238,9 +251,9 @@ function escHtml(str) {
         };
 
         try {
-            const res = await fetch(`${API}/api/match/agentic?top_n=5`, {
+            const res = await fetch(`${API}/api/match/smart?top_n=5`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify(payload),
             });
             if (!res.ok) throw new Error(await res.text());
@@ -456,7 +469,7 @@ function escHtml(str) {
         try {
             const res = await fetch(`${API}${endpoint}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify(payload),
             });
             if (!res.ok) throw new Error(await res.text());
@@ -480,6 +493,23 @@ function escHtml(str) {
             btnText.hidden = false; btnLoad.hidden = true; genBtn.disabled = false;
         }
     });
+
+    if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(bodyEl.textContent);
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✅ Copied!';
+                copyBtn.classList.add('success');
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.classList.remove('success');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy', err);
+            }
+        });
+    }
 
     function renderHistory() {
         if (!state.generatedContent.length) return;

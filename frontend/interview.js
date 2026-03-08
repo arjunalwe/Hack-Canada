@@ -8,6 +8,14 @@
 const API = 'http://localhost:8000';
 const SILENCE_TIMEOUT_MS = 2500; // Auto-submit after 2.5s of silence
 
+function authHeaders(extra = {}) {
+    const headers = { ...extra };
+    if (window.Auth0 && window.Auth0.getToken()) {
+        headers['Authorization'] = `Bearer ${window.Auth0.getToken()}`;
+    }
+    return headers;
+}
+
 /* ── DOM refs ──────────────────────────────────────── */
 const setupPhase     = document.getElementById('setupPhase');
 const livePhase      = document.getElementById('livePhase');
@@ -91,7 +99,7 @@ setupForm.addEventListener('submit', async (e) => {
     try {
         const res = await fetch(`${API}/api/simulator/interview/start`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify(payload),
         });
         if (!res.ok) throw new Error(await res.text());
@@ -156,6 +164,7 @@ async function playQuestionAudio() {
     try {
         const res = await fetch(`${API}/api/simulator/interview/${sessionId}/audio`, {
             method: 'POST',
+            headers: authHeaders(),
         });
         if (!res.ok) throw new Error('Audio fetch failed');
 
@@ -368,7 +377,7 @@ async function submitResponse() {
     try {
         const res = await fetch(`${API}/api/simulator/interview/${sessionId}/respond`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({ response_text: userResponseText.trim() }),
         });
         if (!res.ok) throw new Error(await res.text());
@@ -421,6 +430,7 @@ async function loadFeedback(endReason) {
     try {
         const res = await fetch(`${API}/api/simulator/interview/${sessionId}/end`, {
             method: 'POST',
+            headers: authHeaders(),
         });
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();

@@ -13,6 +13,19 @@
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+
+  <!-- ── Auth0 config ── -->
+  <script>
+      window.AUTH0_CONFIG = {
+          domain: "dev-uzi6d8f6w5w0310c.us.auth0.com",
+          clientId: "9CXr4jjIGbVealhzVYwwYPCI1ePrThbr",
+          audience: "",
+          redirectUri: "http://localhost:3000/auth/callback.html",
+          apiBase: "http://localhost:8000",
+      };
+  </script>
+  <script src="auth/auth.js"></script>
+  <script src="auth/auth-guard.js"></script>
 </head>
 
 <body>
@@ -25,6 +38,7 @@
       <a href="#" class="pipe-step-link" data-step="2">2 · Match</a>
       <a href="#" class="pipe-step-link" data-step="3">3 · Generate</a>
       <a href="#" class="pipe-step-link" data-step="4">4 · Practice</a>
+      <a href="#" id="logoutBtn" style="color:var(--gx-red);margin-left:1rem;font-weight:600;font-size:0.85rem;">Logout</a>
     </div>
   </nav>
 
@@ -240,7 +254,7 @@
       </div>
 
       <div class="step-advance" id="genAdvance" hidden>
-        <button class="btn btn-primary" id="toStep4Btn">Practice Mock Interview →</button>
+        <button class="btn btn-primary btn-pulse" id="toStep4Btn">Practice Mock Interview →</button>
       </div>
     </div>
   </section>

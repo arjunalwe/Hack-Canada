@@ -16,23 +16,23 @@
 }
 
 :root {
-    --a0-bg: #080c12;
-    --a0-surface: rgba(255, 255, 255, .045);
-    --a0-border: rgba(255, 255, 255, .09);
-    --a0-border-hi: rgba(255, 255, 255, .18);
-    --a0-text: #e8eaf0;
-    --a0-muted: rgba(232, 234, 240, .45);
-    --a0-accent: #4f8cff;
-    --a0-accent-hi: #7aa8ff;
-    --a0-green: #30c97e;
+    --a0-bg: #0a0a0c;
+    --a0-surface: rgba(255, 255, 255, 0.03);
+    --a0-border: rgba(255, 255, 255, 0.1);
+    --a0-border-hi: rgba(255, 255, 255, 0.2);
+    --a0-text: #ffffff;
+    --a0-muted: rgba(255, 255, 255, 0.6);
+    --a0-accent: #d4ff5c;
+    --a0-accent-hi: #e0ff80;
+    --a0-green: #d4ff5c;
     --a0-red: #ff5f6d;
     --a0-gold: #f5c842;
-    --a0-radius: 14px;
+    --a0-radius: 12px;
     --a0-radius-sm: 8px;
-    --a0-font-d: 'Instrument Serif', Georgia, serif;
-    --a0-font-m: 'DM Mono', monospace;
-    --a0-font-s: system-ui, -apple-system, sans-serif;
-    --a0-shadow: 0 24px 80px rgba(0, 0, 0, .55);
+    --a0-font-d: 'Syne', sans-serif;
+    --a0-font-m: 'DM Sans', monospace;
+    --a0-font-s: 'DM Sans', sans-serif;
+    --a0-shadow: 0 24px 80px rgba(0, 0, 0, .8);
 }
 
 html,
@@ -147,7 +147,9 @@ body {
 .a0-logo-symbol {
     width: 34px;
     height: 34px;
-    background: linear-gradient(135deg, var(--a0-accent) 0%, var(--a0-green) 100%);
+    background: rgba(212, 255, 92, 0.15);
+    border: 1px solid var(--a0-accent);
+    color: var(--a0-accent);
     border-radius: 9px;
     display: grid;
     place-items: center;
@@ -156,10 +158,11 @@ body {
 
 .a0-logo-name {
     font-family: var(--a0-font-d);
-    font-size: 1.3rem;
+    font-weight: 700;
+    font-size: 1.5rem;
     color: var(--a0-text);
-    letter-spacing: -.02em;
-    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .a0-heading {
@@ -235,13 +238,15 @@ body {
 }
 
 .a0-btn-primary {
-    background: linear-gradient(135deg, var(--a0-accent) 0%, #3a6fd8 100%);
-    color: #fff;
-    box-shadow: 0 4px 20px rgba(79, 140, 255, .35);
+    background: var(--a0-accent);
+    color: #000;
+    font-weight: 600;
+    box-shadow: 0 4px 20px rgba(212, 255, 92, 0.2);
 }
 
 .a0-btn-primary:hover {
-    box-shadow: 0 6px 30px rgba(79, 140, 255, .5);
+    box-shadow: 0 6px 30px rgba(212, 255, 92, 0.35);
+    background: var(--a0-accent-hi);
     transform: translateY(-1px);
 }
 

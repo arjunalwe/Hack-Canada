@@ -19,9 +19,9 @@
     const REDIRECT_URI = CFG.redirectUri || (location.origin + "/auth/callback.html");
     const API_BASE = CFG.apiBase || "http://localhost:8000";
 
-    // ── Token cache (in-memory only) ──────────────────────
+    // ── Token cache (in-memory & session storage) ─────────
     let _accessToken = null;
-    let _idToken = null;
+    let _idToken = sessionStorage.getItem("a0_id_token") || null;
     let _user = null;
 
     // ── PKCE helpers ──────────────────────────────────────
@@ -114,6 +114,7 @@
         const tokens = await resp.json();
         _accessToken = tokens.access_token || null;
         _idToken = tokens.id_token || null;
+        if (_idToken) sessionStorage.setItem("a0_id_token", _idToken);
         _user = _idToken ? _parseJWT(_idToken) : null;
 
         // Clean up
@@ -138,12 +139,13 @@
     }
 
     // ── Get token ──────────────────────────────────────────
-    function getToken() { return _accessToken; }
+    function getToken() { return _idToken; }
 
     // ── Logout ─────────────────────────────────────────────
     function logout() {
         _accessToken = null; _idToken = null; _user = null;
         sessionStorage.removeItem("a0_user");
+        sessionStorage.removeItem("a0_id_token");
         sessionStorage.removeItem("a0_pkce_v");
         const url = new URL(`https://${DOMAIN}/v2/logout`);
         url.searchParams.set("client_id", CLIENT_ID);
