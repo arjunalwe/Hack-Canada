@@ -41,6 +41,96 @@ async def match_startup(
     return {"mode": "fast", "matches": matches}
 
 
+@router.post("/smart")
+async def match_startup_smart(
+    profile: StartupProfile,
+    top_n: int = 5,
+    user: dict = Depends(get_current_user),
+):
+    """Smart hybrid matching — fast pre-filter + single AI reasoning call.
+
+    Much faster than full agentic (10-15s vs 60-90s) while still providing
+    AI-powered reasoning and verdicts for the top results.
+    """
+    import json, re, httpx
+    from config import settings
+
+    vc_database = load_vc_database()
+    # Step 1: Fast pre-filter (instant)
+    candidates = get_top_matches(profile.model_dump(), vc_database, top_n=top_n)
+
+    # Step 2: Single AI call to reason about all candidates at once
+    startup_desc = (
+        f"Name: {profile.name}, Sector: {profile.sector}, Stage: {profile.stage}, "
+        f"Description: {profile.description}, Location: {profile.location}, "
+        f"Funding Ask: {profile.funding_ask or 'Not specified'}"
+    )
+    vc_summaries = "\n".join(
+        f"- {c.get('fund_name','?')}: mandate={c.get('sector_mandate','?')}, "
+        f"stage={c.get('investment_stage','?')}, "
+        f"check={c.get('check_size_min','?')}-{c.get('check_size_max','?')} CAD, "
+        f"location={c.get('location','?')}"
+        for c in candidates
+    )
+
+    prompt = f"""You are a senior VC matching analyst. Evaluate how well this startup matches each VC fund.
+
+STARTUP: {startup_desc}
+
+CANDIDATE VCS:
+{vc_summaries}
+
+For each VC, return a JSON array with objects containing:
+- "fund_name": exact fund name
+- "match_score": 0-100 integer (be honest — gibberish or bad fits should get <30)
+- "verdict": "strong match" / "good match" / "weak match" / "poor match"
+- "confidence": "high" / "medium" / "low"
+- "reasoning": 2-3 sentence explanation
+- "suggested_approach": 1 sentence on how to approach this VC
+
+Return ONLY a valid JSON array, no markdown."""
+
+    try:
+        from backboard import BackboardClient
+        client = BackboardClient(api_key=settings.BACKBOARD_API_KEY)
+        assistant = await client.create_assistant(
+            name="Match Analyst",
+            system_prompt="You evaluate startup-VC fit with brutal honesty. Always respond in valid JSON."
+        )
+        thread = await client.create_thread(assistant.assistant_id)
+        response = await client.add_message(
+            thread_id=thread.thread_id,
+            content=prompt,
+            stream=False,
+        )
+        raw = response.content.strip()
+        # Parse JSON
+        cleaned = re.sub(r"^```(?:json)?\s*", "", raw)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+        ai_results = json.loads(cleaned)
+
+        # Merge AI reasoning into candidates
+        ai_by_name = {r.get("fund_name", "").lower(): r for r in ai_results}
+        for c in candidates:
+            ai = ai_by_name.get(c.get("fund_name", "").lower(), {})
+            c["match_score"] = ai.get("match_score", c.get("match_score", 50))
+            c["verdict"] = ai.get("verdict", "")
+            c["confidence"] = ai.get("confidence", "")
+            c["reasoning"] = ai.get("reasoning", "")
+            c["suggested_approach"] = ai.get("suggested_approach", "")
+
+        candidates.sort(key=lambda x: x.get("match_score", 0), reverse=True)
+    except Exception as exc:
+        # If AI call fails, fall back to fast scores with no reasoning
+        import logging
+        logging.warning("Smart match AI call failed, using fast scores: %s", exc)
+        for c in candidates:
+            c["verdict"] = ""
+            c["reasoning"] = "AI reasoning unavailable — showing algorithmic score."
+
+    return {"mode": "smart", "matches": candidates[:top_n]}
+
+
 @router.post("/agentic")
 async def match_startup_agentic(
     profile: StartupProfile,

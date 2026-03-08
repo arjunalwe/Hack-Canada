@@ -1,22 +1,39 @@
 """Adversarial VC Simulator — Gemini persona + ElevenLabs TTS."""
 
 from typing import Any, AsyncIterator, Dict
+import asyncio
 import hashlib
+import logging
 
 import json
 import re
-from backboard import BackboardClient
 import httpx
 
 from config import settings
 
-# ── Backboard setup ────────────────────────────────────────────
-client = BackboardClient(api_key=settings.BACKBOARD_API_KEY)
+logger = logging.getLogger(__name__)
+
+# ── Backboard setup (optional — may be unavailable) ────────────
+try:
+    from backboard import BackboardClient
+    backboard_client = BackboardClient(api_key=settings.BACKBOARD_API_KEY)
+except Exception:
+    backboard_client = None
+    logger.warning("Backboard SDK not available — will use Gemini directly.")
+
+# ── Gemini setup (fallback) ────────────────────────────────────
+try:
+    import google.generativeai as genai
+    genai.configure(api_key=settings.GEMINI_API_KEY)
+    gemini_model = genai.GenerativeModel("gemini-2.0-flash")
+except Exception:
+    gemini_model = None
+    logger.warning("Gemini SDK not available.")
 
 
-async def generate_vc_question(data: Dict[str, Any]) -> str:
-    """Generate a brutal, adversarial VC question based on the investor profile and startup pitch."""
-    prompt = f"""You are role-playing as a HIGHLY CRITICAL venture capital partner at {data.get('vc_name', 'a top-tier fund')}.
+def _build_vc_prompt(data: Dict[str, Any]) -> str:
+    """Build the adversarial VC question prompt."""
+    return f"""You are role-playing as a HIGHLY CRITICAL venture capital partner at {data.get('vc_name', 'a top-tier fund')}.
 
 YOUR INVESTOR PROFILE:
 - Fund: {data.get('vc_name', 'Unknown Fund')}
@@ -40,14 +57,47 @@ deeply understand their space and see a SPECIFIC flaw.
 
 Return ONLY the question. No preamble, no commentary.
 """
-    assistant = await client.create_assistant(name="VC Simulator", system_prompt="You are a VC.")
-    thread = await client.create_thread(assistant.assistant_id)
-    response = await client.add_message(
+
+
+async def _generate_via_backboard(prompt: str) -> str:
+    """Try generating via Backboard with a timeout."""
+    assistant = await backboard_client.create_assistant(name="VC Simulator", system_prompt="You are a VC.")
+    thread = await backboard_client.create_thread(assistant.assistant_id)
+    response = await backboard_client.add_message(
         thread_id=thread.thread_id,
         content=prompt,
         stream=False
     )
     return response.content.strip()
+
+
+async def _generate_via_gemini(prompt: str) -> str:
+    """Generate via direct Gemini API call."""
+    response = await asyncio.to_thread(
+        gemini_model.generate_content, prompt
+    )
+    return response.text.strip()
+
+
+async def generate_vc_question(data: Dict[str, Any]) -> str:
+    """Generate a brutal, adversarial VC question.
+
+    Tries Backboard first (15 s timeout), then falls back to direct Gemini.
+    """
+    prompt = _build_vc_prompt(data)
+
+    # ── Try Backboard first ────────────────────────────────────
+    if backboard_client:
+        try:
+            return await asyncio.wait_for(_generate_via_backboard(prompt), timeout=15.0)
+        except Exception as exc:
+            logger.warning("Backboard call failed (%s), falling back to Gemini.", exc)
+
+    # ── Fallback: direct Gemini ────────────────────────────────
+    if gemini_model:
+        return await _generate_via_gemini(prompt)
+
+    raise RuntimeError("No AI backend available (both Backboard and Gemini failed).")
 
 
 # ── ElevenLabs Standard Voices ──────────────────────────────
@@ -153,14 +203,32 @@ Return a JSON object:
 
 Return ONLY valid JSON.
 """
-    assistant = await client.create_assistant(name="Pitch Coach", system_prompt="You evaluate pitches.")
-    thread = await client.create_thread(assistant.assistant_id)
-    response = await client.add_message(
-        thread_id=thread.thread_id,
-        content=prompt,
-        stream=False
-    )
-    raw = response.content.strip()
+    raw = None
+
+    # ── Try Backboard first ────────────────────────────────────
+    if backboard_client:
+        try:
+            async def _eval_via_backboard():
+                assistant = await backboard_client.create_assistant(name="Pitch Coach", system_prompt="You evaluate pitches.")
+                thread = await backboard_client.create_thread(assistant.assistant_id)
+                resp = await backboard_client.add_message(
+                    thread_id=thread.thread_id,
+                    content=prompt,
+                    stream=False
+                )
+                return resp.content.strip()
+
+            raw = await asyncio.wait_for(_eval_via_backboard(), timeout=15.0)
+        except Exception as exc:
+            logger.warning("Backboard evaluate call failed (%s), falling back to Gemini.", exc)
+
+    # ── Fallback: direct Gemini ────────────────────────────────
+    if raw is None:
+        if gemini_model:
+            response = await asyncio.to_thread(gemini_model.generate_content, prompt)
+            raw = response.text.strip()
+        else:
+            raise RuntimeError("No AI backend available (both Backboard and Gemini failed).")
 
     # Parse JSON from response
     cleaned = re.sub(r"^```(?:json)?\s*", "", raw)
@@ -173,3 +241,4 @@ Return ONLY valid JSON.
             "feedback": raw,
             "error": "Failed to parse structured evaluation",
         }
+

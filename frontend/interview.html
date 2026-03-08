@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mock Interview — Co-Pilot</title>
+  <meta name="description" content="Practice your pitch against an adversarial AI VC. Get real-time audio questions, speak your answers, and receive dual-perspective feedback." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <nav class="nav" id="nav">
+    <a class="nav-logo" href="index.html">Co-Pilot</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="index.html#features">Features</a>
+      <a href="#" class="nav-cta">Mock Interview</a>
+    </div>
+  </nav>
+
+  <!-- ── MAIN WRAPPER ── -->
+  <main class="interview-page">
+
+    <!-- ══════ PHASE 1: SETUP ══════ -->
+    <section class="interview-setup" id="setupPhase">
+      <div class="interview-setup-inner">
+        <div class="section-label">Pitch Simulator</div>
+        <h1 class="interview-title">Mock VC Interview</h1>
+        <p class="interview-subtitle">Face an AI venture capitalist. Speak your answers. Get brutally honest feedback.</p>
+
+        <form class="interview-form" id="setupForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vcName">VC Fund Name</label>
+              <input type="text" id="vcName" placeholder="e.g. Sequoia Capital" value="Sequoia Capital" />
+            </div>
+            <div class="form-group">
+              <label for="vcMandate">Investment Mandate</label>
+              <input type="text" id="vcMandate" placeholder="e.g. AI, SaaS, Enterprise" value="AI and Machine Learning" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vcStyle">Interview Style</label>
+              <select id="vcStyle">
+                <option value="aggressive" selected>Aggressive</option>
+                <option value="analytical">Analytical</option>
+                <option value="friendly">Friendly but probing</option>
+                <option value="skeptical">Deeply skeptical</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <div class="style-hint" id="styleHint">Expect confrontational, rapid-fire challenges</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="startupPitch">Your Startup Pitch</label>
+            <textarea id="startupPitch" rows="4" placeholder="Describe what your startup does, the problem you solve, your traction, and what you're raising..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="startBtn">
+              <span class="btn-text">🎙 Start Interview →</span>
+              <span class="btn-loader" hidden>Preparing…</span>
+            </button>
+            <span class="form-note">5 rounds · Audio enabled · Chrome/Edge recommended</span>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ══════ PHASE 2: LIVE INTERVIEW ══════ -->
+    <section class="interview-live" id="livePhase" hidden>
+      <div class="interview-live-inner">
+
+        <!-- Header bar -->
+        <div class="interview-header">
+          <div class="interview-header-left">
+            <span class="interview-vc-name" id="liveVcName">Sequoia Capital</span>
+            <span class="interview-round-badge" id="liveRound">Round 1 / 5</span>
+          </div>
+          <div class="interview-header-right">
+            <div class="interview-score-pill" id="scorePill" hidden>
+              <span class="score-label">Last Score</span>
+              <span class="score-value" id="lastScore">—</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="endInterviewBtn">End Interview</button>
+          </div>
+        </div>
+
+        <!-- Transcript -->
+        <div class="interview-transcript" id="transcript">
+          <!-- Chat bubbles injected here -->
+        </div>
+
+        <!-- Controls -->
+        <div class="interview-controls">
+          <div class="interview-status" id="interviewStatus">Preparing first question…</div>
+
+          <div class="mic-area" id="micArea" hidden>
+            <button class="mic-btn" id="micBtn" title="Click to start speaking">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+            </button>
+            <div class="mic-hint" id="micHint">Click to respond</div>
+          </div>
+
+          <!-- Waveform visualizer -->
+          <canvas class="waveform" id="waveform" width="400" height="60" hidden></canvas>
+
+          <!-- Live transcription preview -->
+          <div class="live-transcript" id="liveTranscript" hidden>
+            <span class="live-label">You're saying:</span>
+            <span class="live-text" id="liveText"></span>
+          </div>
+
+          <button class="btn btn-primary btn-sm" id="sendBtn" hidden>Send Response →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════ PHASE 3: FEEDBACK ══════ -->
+    <section class="interview-feedback" id="feedbackPhase" hidden>
+      <div class="interview-feedback-inner">
+        <div class="section-label">Interview Complete</div>
+        <h2 class="interview-title">Your Feedback</h2>
+
+        <!-- Stats row -->
+        <div class="feedback-stats" id="feedbackStats">
+          <div class="feedback-stat">
+            <span class="feedback-stat-num" id="fbRounds">—</span>
+            <span class="feedback-stat-label">Rounds</span>
+          </div>
+          <div class="feedback-stat-div"></div>
+          <div class="feedback-stat">
+            <span class="feedback-stat-num" id="fbAvgScore">—</span>
+            <span class="feedback-stat-label">Avg Score</span>
+          </div>
+          <div class="feedback-stat-div"></div>
+          <div class="feedback-stat">
+            <span class="feedback-stat-num" id="fbEndReason">—</span>
+            <span class="feedback-stat-label">End Reason</span>
+          </div>
+        </div>
+
+        <!-- Dual-agent cards -->
+        <div class="feedback-grid">
+          <div class="feedback-card feedback-card--pros" id="prosCard">
+            <div class="feedback-card-header">
+              <span class="feedback-icon">✦</span>
+              <h3>Strengths</h3>
+              <span class="feedback-agent-tag">Pros Agent</span>
+            </div>
+            <div class="feedback-card-body" id="prosBody">
+              <p class="feedback-loading">Analyzing…</p>
+            </div>
+          </div>
+
+          <div class="feedback-card feedback-card--cons" id="consCard">
+            <div class="feedback-card-header">
+              <span class="feedback-icon">⚑</span>
+              <h3>Weaknesses</h3>
+              <span class="feedback-agent-tag">Cons Agent</span>
+            </div>
+            <div class="feedback-card-body" id="consBody">
+              <p class="feedback-loading">Analyzing…</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transcript review -->
+        <div class="feedback-transcript-section">
+          <h3 class="feedback-transcript-title">Full Transcript</h3>
+          <div class="feedback-transcript" id="feedbackTranscript"></div>
+        </div>
+
+        <div class="feedback-actions">
+          <button class="btn btn-primary" id="restartBtn">Start New Interview →</button>
+          <a href="index.html" class="btn btn-ghost">← Back to Home</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">Co-Pilot</span>
+      <span class="footer-copy">Built for Hack Canada · 2026</span>
+      <div class="footer-links">
+        <a href="http://localhost:8000/docs" target="_blank">API Docs</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="interview.js"></script>
+</body>
+</html>
