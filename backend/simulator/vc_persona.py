@@ -66,7 +66,8 @@ async def _generate_via_backboard(prompt: str) -> str:
     response = await backboard_client.add_message(
         thread_id=thread.thread_id,
         content=prompt,
-        stream=False
+        stream=False,
+        memory="Auto",
     )
     return response.content.strip()
 
@@ -214,7 +215,8 @@ Return ONLY valid JSON.
                 resp = await backboard_client.add_message(
                     thread_id=thread.thread_id,
                     content=prompt,
-                    stream=False
+                    stream=False,
+                    memory="Auto",
                 )
                 return resp.content.strip()
 

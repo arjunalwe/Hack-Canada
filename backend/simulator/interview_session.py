@@ -189,63 +189,78 @@ def check_end_conditions(session: InterviewSession) -> tuple[bool, Optional[str]
 # ── Dual-agent feedback ───────────────────────────────────────
 async def generate_dual_feedback(session: InterviewSession) -> Dict[str, Any]:
     """Generate feedback from two Backboard agents: Pros and Cons."""
-    transcript_text = _format_transcript(session)
+    # Build Q&A pairs showing only what the founder said in response to each question
+    qa_pairs = []
+    for i, entry in enumerate(session.transcript):
+        if entry.role == "user":
+            # Find the VC question just before this user response
+            prev_vc = ""
+            for j in range(i - 1, -1, -1):
+                if session.transcript[j].role == "vc":
+                    prev_vc = session.transcript[j].text
+                    break
+            score_str = f" [Score: {entry.score}/10]" if entry.score else ""
+            qa_pairs.append(f"Q: {prev_vc}\nFOUNDER'S ANSWER{score_str}: {entry.text}")
 
-    scores = [e.score for e in session.transcript if e.role == "user" and e.score is not None]
-    avg_score = sum(scores) / len(scores) if scores else 0
+    qa_text = "\n\n".join(qa_pairs) if qa_pairs else "No responses recorded."
 
-    pros_prompt = f"""You are an ENCOURAGING pitch coach reviewing a founder's mock VC interview.
-
-FULL INTERVIEW TRANSCRIPT:
-{transcript_text}
+    pros_prompt = f"""You are an ENCOURAGING pitch coach. Review ONLY the FOUNDER's answers below.
+Do NOT evaluate the VC's questions — only analyze how well the founder responded.
 
 STARTUP PITCH:
 {session.startup_pitch}
 
-Your job is to find EVERY STRENGTH in the founder's performance. Be specific — quote
-their exact words when they said something well. Highlight:
-- Strong answers with specific data or metrics
-- Good handling of pressure
-- Effective storytelling or framing
+FOUNDER'S RESPONSES TO VC QUESTIONS:
+{qa_text}
+
+Find EVERY STRENGTH in the founder's answers. Be specific — quote their exact words
+when they said something well. Focus on:
+- Answers with specific data, metrics, or concrete examples
+- Good handling of tough or confrontational questions
+- Effective storytelling or framing of their startup
 - Genuine honesty that built credibility
-- Any moments where they showed deep domain expertise
+- Moments showing deep domain expertise
 
 Return a JSON object:
 ```json
 {{
     "strengths": ["Specific strength 1", "Specific strength 2", ...],
-    "best_moment": "Quote or describe their single best moment",
-    "overall": "2-3 sentence encouraging summary"
+    "best_moment": "Quote the founder's single best answer or phrase",
+    "overall": "2-3 sentence encouraging summary of the FOUNDER's performance"
 }}
 ```
 Return ONLY valid JSON."""
 
-    cons_prompt = f"""You are a BRUTALLY HONEST pitch critic reviewing a founder's mock VC interview.
-
-FULL INTERVIEW TRANSCRIPT:
-{transcript_text}
+    cons_prompt = f"""You are a BRUTALLY HONEST pitch critic. Review ONLY the FOUNDER's answers below.
+Do NOT evaluate the VC's questions — only analyze weaknesses in how the founder responded.
 
 STARTUP PITCH:
 {session.startup_pitch}
 
-Your job is to find EVERY WEAKNESS in the founder's performance. Be specific — quote
-their exact words when they stumbled. Highlight:
-- Evasive or vague answers
+FOUNDER'S RESPONSES TO VC QUESTIONS:
+{qa_text}
+
+Find EVERY WEAKNESS in the founder's answers. Be specific — quote their exact words
+when they stumbled. Focus on:
+- Evasive, vague, or rambling answers
 - Missing data or unsubstantiated claims
-- Defensive reactions
-- Missed opportunities to address concerns
+- Defensive or dismissive reactions to valid concerns
+- Missed opportunities to address the VC's underlying concern
 - Weak closings or lack of confidence
-- Any factual errors or contradictions
+- Factual errors or contradictions
 
 Return a JSON object:
 ```json
 {{
     "weaknesses": ["Specific weakness 1", "Specific weakness 2", ...],
-    "worst_moment": "Quote or describe their single worst moment",
-    "overall": "2-3 sentence brutally honest summary"
+    "worst_moment": "Quote the founder's single weakest answer or phrase",
+    "overall": "2-3 sentence brutally honest summary of the FOUNDER's performance"
 }}
 ```
 Return ONLY valid JSON."""
+
+    scores = [e.score for e in session.transcript if e.role == "user" and e.score is not None]
+    avg_score = sum(scores) / len(scores) if scores else 0
 
     # Run both agents in parallel
     pros_raw, cons_raw = await asyncio.gather(

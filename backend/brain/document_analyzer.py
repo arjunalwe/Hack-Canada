@@ -20,6 +20,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 from backboard import BackboardClient
+from backboard.exceptions import BackboardValidationError
 
 from config import settings
 
@@ -37,13 +38,34 @@ ALLOWED_EXTENSIONS = {
 
 
 def _parse_json(raw: str) -> dict:
-    """Parse JSON from LLM response."""
-    cleaned = re.sub(r"^```(?:json)?\s*", "", raw.strip())
-    cleaned = re.sub(r"\s*```$", "", cleaned)
+    """Parse JSON from LLM response — robust against markdown fences and surrounding text."""
+    text = raw.strip()
+
+    # 1. Try direct parse
     try:
-        return json.loads(cleaned)
+        return json.loads(text)
     except json.JSONDecodeError:
-        return {}
+        pass
+
+    # 2. Strip markdown code fences (```json ... ``` or ``` ... ```)
+    fenced = re.search(r"```(?:json)?\s*\n?(.*?)\n?\s*```", text, re.DOTALL)
+    if fenced:
+        try:
+            return json.loads(fenced.group(1).strip())
+        except json.JSONDecodeError:
+            pass
+
+    # 3. Find the first { ... } block (greedy from first { to last })
+    brace_match = re.search(r"\{.*\}", text, re.DOTALL)
+    if brace_match:
+        try:
+            return json.loads(brace_match.group(0))
+        except json.JSONDecodeError:
+            pass
+
+    # 4. Give up — log what we got
+    print(f"[brain] WARNING: Could not parse JSON from response ({len(text)} chars). First 200 chars: {text[:200]}")
+    return {}
 
 
 # ── System prompt ───────────────────────────────────────────
@@ -75,7 +97,7 @@ class DocumentAnalyzer:
     """Manages document uploads, RAG-powered analysis, and pitch synthesis via Backboard.io."""
 
     def __init__(self):
-        self.client = BackboardClient(api_key=settings.BACKBOARD_API_KEY)
+        self.client = BackboardClient(api_key=settings.BACKBOARD_API_KEY, timeout=120)
         self._assistant_id: Optional[str] = None
         self._thread_id: Optional[str] = None
         self._documents: Dict[str, Dict[str, Any]] = {}  # doc_id -> metadata
@@ -113,9 +135,23 @@ class DocumentAnalyzer:
         assistant_id = await self._ensure_assistant()
 
         print(f"[brain] Uploading '{original_filename}'...")
-        document = await self.client.upload_document_to_assistant(
-            assistant_id, filepath
-        )
+        try:
+            document = await self.client.upload_document_to_assistant(
+                assistant_id, filepath
+            )
+        except BackboardValidationError as exc:
+            # Hit the 20-file limit — reset and retry with a fresh assistant
+            err_msg = str(exc).lower()
+            if "20 files" in err_msg or "limit" in err_msg or "exceeded" in err_msg:
+                print(f"[brain] Hit Backboard file limit, resetting assistant...")
+                self.reset()
+                assistant_id = await self._ensure_assistant()
+                document = await self.client.upload_document_to_assistant(
+                    assistant_id, filepath
+                )
+            else:
+                raise
+
         doc_id = document.document_id
         print(f"[brain] Upload complete. Document ID: {doc_id}")
 
@@ -156,6 +192,22 @@ class DocumentAnalyzer:
         Returns:
             Structured pitch concept with startup profile ready for matching
         """
+        # If no documents tracked in memory, check disk for previously uploaded files
+        if not self._documents:
+            disk_files = [
+                f for f in os.listdir(UPLOADS_DIR)
+                if os.path.isfile(os.path.join(UPLOADS_DIR, f))
+                and os.path.splitext(f)[1].lower() in ALLOWED_EXTENSIONS
+            ]
+            if disk_files:
+                print(f"[brain] Found {len(disk_files)} file(s) on disk — re-uploading to brain...")
+                for fname in disk_files:
+                    fpath = os.path.join(UPLOADS_DIR, fname)
+                    try:
+                        await self.upload_document(fpath, fname)
+                    except Exception as e:
+                        print(f"[brain] Re-upload of '{fname}' failed: {e}")
+
         thread_id = await self._ensure_thread()
         doc_count = len(self._documents)
 
@@ -220,6 +272,7 @@ Return ONLY valid JSON."""
             thread_id=thread_id,
             content=prompt,
             stream=False,
+            memory="Auto",
         )
 
         result = _parse_json(response.content)
@@ -271,7 +324,7 @@ Return JSON:
 Use null for anything not found or inferable. Return ONLY valid JSON."""
 
         response = await self.client.add_message(
-            thread_id=thread_id, content=prompt, stream=False
+            thread_id=thread_id, content=prompt, stream=False, memory="Auto",
         )
 
         profile = _parse_json(response.content)
@@ -288,7 +341,7 @@ Use null for anything not found or inferable. Return ONLY valid JSON."""
         thread_id = await self._ensure_thread()
         print(f"[brain] Query: '{question[:60]}...'")
         response = await self.client.add_message(
-            thread_id=thread_id, content=question, stream=False
+            thread_id=thread_id, content=question, stream=False, memory="Auto",
         )
         return response.content
 

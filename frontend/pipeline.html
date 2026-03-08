@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lynx — AI Fundraising Pipeline</title>
+  <meta name="description"
+    content="Upload your startup docs, match with investors, generate personalized outreach, and practice your pitch — all AI-powered." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ── NAV ── -->
+  <nav class="nav" id="nav">
+    <a class="nav-logo" href="index.html">Lynx</a>
+    <div class="nav-links">
+      <a href="#" class="pipe-step-link active" data-step="1">1 · Upload</a>
+      <a href="#" class="pipe-step-link" data-step="2">2 · Match</a>
+      <a href="#" class="pipe-step-link" data-step="3">3 · Generate</a>
+      <a href="#" class="pipe-step-link" data-step="4">4 · Practice</a>
+    </div>
+  </nav>
+
+  <!-- ── PIPELINE PROGRESS ── -->
+  <div class="pipeline-bar">
+    <div class="pipeline-track">
+      <div class="pipeline-fill" id="pipelineFill" style="width:25%"></div>
+    </div>
+    <div class="pipeline-steps">
+      <button class="pip-dot active" data-step="1"><span>1</span> Upload</button>
+      <button class="pip-dot" data-step="2"><span>2</span> Match</button>
+      <button class="pip-dot" data-step="3"><span>3</span> Generate</button>
+      <button class="pip-dot" data-step="4"><span>4</span> Practice</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       STEP 1 — UPLOAD & SYNTHESIZE
+  ═══════════════════════════════════════════════════ -->
+  <section class="pipe-step" id="step1" data-step="1">
+    <div class="step-inner">
+      <div class="step-header">
+        <div class="step-number">01</div>
+        <div>
+          <h2 class="step-title">Upload your startup files</h2>
+          <p class="step-subtitle">Research papers, pitch decks, financials, code — anything. The AI reads everything
+            and builds your startup profile.</p>
+        </div>
+      </div>
+
+      <!-- Drop zone -->
+      <div class="brain-dropzone" id="brainDropzone">
+        <div class="dropzone-icon">📄</div>
+        <p class="dropzone-text">Drag & drop files here, or <label for="brainFileInput"
+            class="dropzone-link">browse</label></p>
+        <p class="dropzone-hint">PDF, DOCX, PPTX, CSV, TXT, images, code files</p>
+        <input type="file" id="brainFileInput" multiple hidden
+          accept=".pdf,.doc,.docx,.ppt,.pptx,.csv,.json,.txt,.md,.png,.jpg,.jpeg,.webp,.py,.js,.ts,.cpp,.java,.go,.rs" />
+      </div>
+
+      <!-- File list -->
+      <div class="brain-files" id="brainFiles" hidden>
+        <div class="brain-files-header">
+          <h3>Uploaded Files</h3>
+          <span class="brain-file-count" id="brainFileCount">0 files</span>
+        </div>
+        <div class="brain-file-list" id="brainFileList"></div>
+      </div>
+
+      <!-- Synthesize -->
+      <div class="brain-actions" id="brainActions" hidden>
+        <button class="btn btn-primary" id="synthesizeBtn">
+          <span class="btn-text">🧠 Synthesize Startup Concept →</span>
+          <span class="btn-loader" hidden>Synthesizing…</span>
+        </button>
+        <span class="form-note">Reads all documents and creates a pitchable concept</span>
+      </div>
+
+      <!-- Synthesis result -->
+      <div class="brain-result" id="brainResult" hidden>
+        <div class="brain-result-header">
+          <span class="brain-result-icon">🧠</span>
+          <h3>Synthesized Startup Concept</h3>
+        </div>
+        <div class="brain-result-body">
+          <div class="brain-concept-name" id="brainConceptName"></div>
+          <div class="brain-concept-tagline" id="brainConceptTagline"></div>
+          <p class="brain-concept-pitch" id="brainConceptPitch"></p>
+          <div class="brain-concept-meta">
+            <span id="brainSector"></span>
+            <span id="brainStage"></span>
+            <span id="brainReadiness"></span>
+          </div>
+        </div>
+        <div class="step-advance">
+          <button class="btn btn-primary" id="toStep2Btn">Continue to Matching →</button>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div class="brain-error" id="brainError" hidden>
+        <p id="brainErrorText"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       STEP 2 — MATCH
+  ═══════════════════════════════════════════════════ -->
+  <section class="pipe-step" id="step2" data-step="2" hidden>
+    <div class="step-inner">
+      <div class="step-header">
+        <div class="step-number">02</div>
+        <div>
+          <h2 class="step-title">Find your best investor matches</h2>
+          <p class="step-subtitle">3 Backboard AI agents analyze your startup against every VC in the database and rank
+            them by fit.</p>
+        </div>
+      </div>
+
+        <!-- Context from Brain -->
+        <div class="match-context" id="matchContext">
+          <div class="context-card-header">
+            <span class="context-icon">🧠</span>
+            <span class="context-label">Using your synthesized profile</span>
+          </div>
+          <p class="context-pitch" id="matchContextPitch"></p>
+        </div>
+
+        <!-- Match action -->
+        <div class="match-action">
+          <button class="btn btn-primary" id="matchBtn">
+            <span class="btn-text">🤖 Find my VCs →</span>
+            <span class="btn-loader" hidden>Running 3 AI agents… (30-60s)</span>
+          </button>
+          <span class="form-note">Multi-agent pipeline: Startup Analyst → VC Profiler → Match Reasoner</span>
+        </div>
+
+        <!-- Loading bar -->
+        <div class="match-loading" id="matchLoading" hidden>
+          <div class="match-loading-bar">
+            <div class="match-loading-fill" id="matchLoadingFill"></div>
+          </div>
+          <p class="match-loading-status" id="matchLoadingStatus">Initializing AI agents…</p>
+        </div>
+
+        <!-- Results -->
+        <div class="match-results" id="matchResults" hidden>
+          <div class="match-results-header">
+            <h3>Your Matches</h3>
+            <span class="results-mode" id="resultsMode"></span>
+          </div>
+          <div class="results-list" id="resultsList"></div>
+          <p class="match-select-hint">Select the VCs you want to generate outreach for ↓</p>
+          <div class="step-advance">
+            <button class="btn btn-primary" id="toStep3Btn" disabled>Generate Outreach for Selected →</button>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div class="match-error" id="matchError" hidden>
+          <p id="matchErrorText"></p>
+        </div>
+      </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       STEP 3 — GENERATE
+  ═══════════════════════════════════════════════════ -->
+  <section class="pipe-step" id="step3" data-step="3" hidden>
+    <div class="step-inner">
+      <div class="step-header">
+        <div class="step-number">03</div>
+        <div>
+          <h2 class="step-title">Generate personalized outreach</h2>
+          <p class="step-subtitle">Choose what to create for each matched VC — cold emails, pitch scripts, LinkedIn DMs,
+            executive summaries.</p>
+        </div>
+      </div>
+
+      <!-- VC tabs -->
+      <div class="gen-vc-tabs" id="genVcTabs"></div>
+
+      <!-- RAG Depth Slider -->
+      <div class="gen-depth">
+        <div class="gen-depth-header">
+          <label for="ragDepth">Brain Detail Level <span class="depth-tooltip" title="How deep should the AI search the uploaded documents?">ⓘ</span></label>
+          <span class="depth-value" id="ragDepthVal">Standard</span>
+        </div>
+        <input type="range" id="ragDepth" class="depth-slider" min="1" max="3" value="2" step="1">
+        <div class="depth-labels">
+          <span>Brief</span>
+          <span>Standard</span>
+          <span>Exhaustive</span>
+        </div>
+      </div>
+
+      <!-- Generation options -->
+      <div class="gen-options">
+        <button class="gen-opt active" data-type="email">✉️ Cold Email</button>
+        <button class="gen-opt" data-type="pitch">🎤 Pitch Script</button>
+        <button class="gen-opt" data-type="linkedin">💼 LinkedIn DM</button>
+        <button class="gen-opt" data-type="summary">📄 Exec Summary</button>
+        <button class="gen-opt" data-type="custom">✨ Custom</button>
+      </div>
+
+      <!-- Custom Prompt Box -->
+      <div class="gen-custom-box" id="genCustomBox" hidden>
+        <label for="genCustomPrompt" class="custom-prompt-label">What do you want to generate or edit?</label>
+        <textarea id="genCustomPrompt" class="custom-prompt-input" rows="3" placeholder="e.g. 'Write a 3-page technical whitepaper', 'Create 5 FAQ questions', or 'Make the email more aggressive'"></textarea>
+      </div>
+
+      <div class="gen-action">
+        <button class="btn btn-primary" id="generateBtn">
+          <span class="btn-text">✨ Generate →</span>
+          <span class="btn-loader" hidden>Generating…</span>
+        </button>
+      </div>
+
+      <!-- Output -->
+      <div class="gen-output" id="genOutput" hidden>
+        <div class="gen-output-header">
+          <h3 id="genOutputTitle">Cold Email</h3>
+          <button class="gen-copy-btn" id="genCopyBtn" title="Copy to clipboard">📋 Copy</button>
+        </div>
+        <pre class="gen-output-body" id="genOutputBody"></pre>
+      </div>
+
+      <!-- History of generated items -->
+      <div class="gen-history" id="genHistory" hidden>
+        <h4>All Generated Content</h4>
+        <div class="gen-history-list" id="genHistoryList"></div>
+      </div>
+
+      <div class="step-advance" id="genAdvance" hidden>
+        <button class="btn btn-primary" id="toStep4Btn">Practice Mock Interview →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       STEP 4 — PRACTICE (Mock Interview)
+  ═══════════════════════════════════════════════════ -->
+  <section class="pipe-step" id="step4" data-step="4" hidden>
+    <div class="step-inner">
+      <div class="step-header">
+        <div class="step-number">04</div>
+        <div>
+          <h2 class="step-title">Practice your pitch</h2>
+          <p class="step-subtitle">Face an AI venture capitalist modelled on your matched VCs. Speak your answers. Get
+            dual-agent feedback.</p>
+        </div>
+      </div>
+
+      <!-- Interview Setup -->
+      <div class="interview-setup" id="interviewSetup">
+        <div class="interview-setup-inner">
+          <div class="interview-context-card" id="contextCard">
+            <div class="context-card-header">
+              <span class="context-icon">🧠</span>
+              <span class="context-label">Brain has your startup info</span>
+            </div>
+            <p class="context-pitch" id="contextPitch"></p>
+          </div>
+
+          <form class="interview-form" id="interviewSetupForm">
+            <div class="form-group">
+              <label for="vcSelect">Pick a matched VC to practice with</label>
+              <select id="vcSelect">
+                <option value="" disabled selected>— Select a VC from your matches —</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="interviewStyle">Interview Style</label>
+                <select id="interviewStyle">
+                  <option value="casual">Casual</option>
+                  <option value="standard" selected>Standard</option>
+                  <option value="aggressive">Aggressive</option>
+                </select>
+                <span class="form-note" id="styleHint">Balanced, covers all key areas</span>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="startInterviewBtn">
+                <span class="btn-text">🎙 Start Live Interview →</span>
+                <span class="btn-loader" hidden>Starting…</span>
+              </button>
+              <span class="form-note">5 rounds · Live speech · Chrome/Edge recommended</span>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Live Interview -->
+      <div class="interview-live" id="interviewLive" hidden>
+        <div class="interview-live-header">
+          <div class="interview-vc-name" id="liveVcName"></div>
+          <span class="score-pill" id="roundPill">Round 1 / 5</span>
+          <div class="interview-live-actions">
+            <span class="last-score" id="lastScore">Last Score —</span>
+            <button class="btn btn-ghost btn-sm" id="endInterviewBtn">End Interview</button>
+          </div>
+        </div>
+
+        <!-- Chat transcript -->
+        <div class="interview-chat" id="interviewChat"></div>
+
+        <!-- Listening indicator -->
+        <div class="interview-listening" id="interviewListening" hidden>
+          <div class="listening-indicator">
+            <span class="listening-dot"></span>
+            <span class="listening-dot"></span>
+            <span class="listening-dot"></span>
+          </div>
+          <p class="listening-text" id="listeningText">Listening…</p>
+          <p class="listening-live" id="liveTranscriptText"></p>
+        </div>
+
+        <!-- Status -->
+        <div class="interview-status" id="interviewStatusBar">
+          <p id="interviewStatusText">Preparing…</p>
+        </div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="interview-feedback" id="interviewFeedback" hidden>
+        <h3 class="feedback-title">Dual-Agent Feedback</h3>
+        <div class="feedback-grid">
+          <div class="feedback-card feedback-card--pro">
+            <h4>✅ Strengths Agent</h4>
+            <div class="feedback-body" id="feedbackPro"></div>
+          </div>
+          <div class="feedback-card feedback-card--con">
+            <h4>⚠️ Improvement Agent</h4>
+            <div class="feedback-body" id="feedbackCon"></div>
+          </div>
+        </div>
+        <div class="feedback-transcript" id="feedbackTranscript"></div>
+        <button class="btn btn-primary" id="restartInterviewBtn">🔄 Practice Again</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">Lynx</span>
+      <span class="footer-copy">Built for Hack Canada · 2026</span>
+      <div class="footer-links">
+        <a href="http://localhost:8000/docs" target="_blank">API Docs</a>
+        <a href="http://localhost:8000/health" target="_blank">Health</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

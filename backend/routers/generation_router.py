@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 from auth.auth0 import get_current_user
-from generation.generator import generate_cold_email, generate_elevator_pitch, generate_exec_summary
+from generation.generator import generate_cold_email, generate_elevator_pitch, generate_exec_summary, generate_custom
 
 router = APIRouter()
 
@@ -19,6 +19,7 @@ class EmailRequest(BaseModel):
     vc_mandate: str
     vc_contact: Optional[str] = ""
     tone: Optional[str] = "professional"
+    depth: Optional[int] = 2
 
 
 class PitchRequest(BaseModel):
@@ -29,6 +30,7 @@ class PitchRequest(BaseModel):
     tech_stack: Optional[str] = ""
     target_market: Optional[str] = ""
     funding_ask: Optional[str] = ""
+    depth: Optional[int] = 2
 
 
 class SummaryRequest(BaseModel):
@@ -40,6 +42,17 @@ class SummaryRequest(BaseModel):
     target_market: Optional[str] = ""
     traction: Optional[str] = ""
     team: Optional[str] = ""
+    depth: Optional[int] = 2
+
+
+class CustomRequest(BaseModel):
+    """Request to generate custom content."""
+    startup_name: str
+    startup_description: str
+    startup_sector: str
+    prompt: str
+    previous_content: Optional[str] = ""
+    depth: Optional[int] = 2
 
 
 @router.post("/email")
@@ -61,3 +74,10 @@ async def create_summary(req: SummaryRequest, user: dict = Depends(get_current_u
     """Generate a one-page executive summary."""
     summary = await generate_exec_summary(req.model_dump())
     return {"summary": summary}
+
+
+@router.post("/custom")
+async def create_custom(req: CustomRequest, user: dict = Depends(get_current_user)):
+    """Generate custom content or edit previous content."""
+    content = await generate_custom(req.model_dump())
+    return {"content": content}

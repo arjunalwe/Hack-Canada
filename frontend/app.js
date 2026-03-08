@@ -65,6 +65,14 @@ function updateUI() {
 navLinks.forEach(a => a.addEventListener('click', e => { e.preventDefault(); goToStep(+a.dataset.step); }));
 pipDots.forEach(d => d.addEventListener('click', () => goToStep(+d.dataset.step)));
 
+// Hero Start button
+const startStaticBtn = $('#startStaticBtn');
+if (startStaticBtn) {
+    startStaticBtn.addEventListener('click', () => {
+        $('#step1').scrollIntoView({ behavior: 'smooth' });
+    });
+}
+
 /* ── Utility ─────────────────────────────────────── */
 function escHtml(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -171,10 +179,53 @@ function escHtml(str) {
     const errBox = $('#matchError');
     const errText = $('#matchErrorText');
     const toStep3 = $('#toStep3Btn');
+    const loadingEl = $('#matchLoading');
+    const loadingFill = $('#matchLoadingFill');
+    const loadingStatus = $('#matchLoadingStatus');
+
+    const LOADING_PHASES = [
+        { pct: 10, text: 'Creating AI agents…', delay: 0 },
+        { pct: 25, text: 'Agent 1: Analyzing your startup profile…', delay: 3000 },
+        { pct: 40, text: 'Agent 2: Profiling VC investment theses…', delay: 8000 },
+        { pct: 60, text: 'Agent 2: Still profiling VCs… (this is thorough)', delay: 15000 },
+        { pct: 75, text: 'Agent 3: Running match reasoning…', delay: 25000 },
+        { pct: 85, text: 'Agent 3: Generating detailed justifications…', delay: 35000 },
+        { pct: 92, text: 'Ranking and finalizing results…', delay: 45000 },
+    ];
+
+    let loadingTimers = [];
+
+    function startLoadingBar() {
+        loadingEl.hidden = false;
+        loadingFill.style.width = '0%';
+        loadingStatus.textContent = 'Initializing AI agents…';
+        loadingTimers.forEach(t => clearTimeout(t));
+        loadingTimers = [];
+        LOADING_PHASES.forEach(phase => {
+            const t = setTimeout(() => {
+                loadingFill.style.width = phase.pct + '%';
+                loadingStatus.textContent = phase.text;
+            }, phase.delay);
+            loadingTimers.push(t);
+        });
+    }
+
+    function stopLoadingBar(success) {
+        loadingTimers.forEach(t => clearTimeout(t));
+        loadingTimers = [];
+        if (success) {
+            loadingFill.style.width = '100%';
+            loadingStatus.textContent = '✓ Matching complete!';
+            setTimeout(() => { loadingEl.hidden = true; }, 1200);
+        } else {
+            loadingEl.hidden = true;
+        }
+    }
 
     matchBtn.addEventListener('click', async () => {
         btnText.hidden = true; btnLoad.hidden = false; matchBtn.disabled = true;
         errBox.hidden = true; resultsEl.hidden = true;
+        startLoadingBar();
 
         const concept = state.synthesis?.pitchable_concept || {};
         const profile = state.synthesis?.startup_profile || {};
@@ -196,9 +247,11 @@ function escHtml(str) {
             const data = await res.json();
             state.matches = data.matches || [];
             modeEl.textContent = '🤖 Agentic AI (Backboard)';
+            stopLoadingBar(true);
             renderMatches();
             resultsEl.hidden = false;
         } catch (err) {
+            stopLoadingBar(false);
             errBox.hidden = false; errText.textContent = 'Match failed: ' + err.message;
         } finally {
             btnText.hidden = false; btnLoad.hidden = true; matchBtn.disabled = false;
@@ -284,11 +337,23 @@ function escHtml(str) {
     let activeType = 'email';
 
     // Type selector
+    const customBox = $('#genCustomBox');
     optBtns.forEach(b => b.addEventListener('click', () => {
         optBtns.forEach(o => o.classList.remove('active'));
         b.classList.add('active');
         activeType = b.dataset.type;
+        if (customBox) customBox.hidden = activeType !== 'custom';
     }));
+
+    // Depth slider
+    const depthSlider = $('#ragDepth');
+    const depthVal = $('#ragDepthVal');
+    if (depthSlider && depthVal) {
+        const labels = ['Brief', 'Standard', 'Exhaustive'];
+        depthSlider.addEventListener('input', () => {
+            depthVal.textContent = labels[depthSlider.value - 1];
+        });
+    }
 
     window.buildGenTabs = function () {
         tabsEl.innerHTML = '';
@@ -314,49 +379,77 @@ function escHtml(str) {
 
         const concept = state.synthesis?.pitchable_concept || {};
         const profile = state.synthesis?.startup_profile || {};
+        const ip = state.synthesis?.ip_analysis || {};
 
-        const typeLabels = { email: '✉️ Cold Email', pitch: '🎤 Pitch Script', linkedin: '💼 LinkedIn DM', summary: '📄 Exec Summary' };
+        const typeLabels = { email: '✉️ Cold Email', pitch: '🎤 Pitch Script', linkedin: '💼 LinkedIn DM', summary: '📄 Exec Summary', custom: '✨ Custom Content' };
         let endpoint = '';
         let payload = {};
+        const depth = depthSlider ? parseInt(depthSlider.value) : 2;
+
+        // Include full synthesis data for deep generation
+        const fullDescription = [
+            concept.elevator_pitch || '',
+            concept.problem ? `Problem: ${concept.problem}` : '',
+            concept.solution ? `Solution: ${concept.solution}` : '',
+            concept.secret_sauce ? `Secret sauce: ${concept.secret_sauce}` : '',
+            ip.core_innovation ? `Core innovation: ${ip.core_innovation}` : '',
+            ip.technical_moat ? `Technical moat: ${ip.technical_moat}` : '',
+        ].filter(Boolean).join('. ');
 
         if (activeType === 'email') {
             endpoint = '/api/generate/email';
             payload = {
                 startup_name: concept.startup_name || 'My Startup',
-                startup_description: concept.elevator_pitch || '',
+                startup_description: fullDescription,
                 startup_sector: profile.sector || 'Technology',
                 vc_name: vc.fund_name || '',
                 vc_mandate: vc.sector_mandate || vc.real_thesis || '',
                 tone: 'professional',
+                depth
             };
         } else if (activeType === 'pitch') {
             endpoint = '/api/generate/pitch';
             payload = {
                 startup_name: concept.startup_name || 'My Startup',
-                startup_description: concept.elevator_pitch || '',
+                startup_description: fullDescription,
                 startup_sector: profile.sector || 'Technology',
                 target_market: profile.target_market || '',
                 funding_ask: profile.funding_ask || '',
+                tech_stack: (profile.tech_stack || []).join(', '),
+                depth
             };
         } else if (activeType === 'linkedin') {
-            // Reuse email endpoint with linkedin tone
             endpoint = '/api/generate/email';
             payload = {
                 startup_name: concept.startup_name || 'My Startup',
-                startup_description: concept.elevator_pitch || '',
+                startup_description: fullDescription,
                 startup_sector: profile.sector || 'Technology',
                 vc_name: vc.fund_name || '',
                 vc_mandate: vc.sector_mandate || vc.real_thesis || '',
                 vc_contact: 'Partner',
                 tone: 'linkedin-dm-casual-short',
+                depth
             };
         } else if (activeType === 'summary') {
             endpoint = '/api/generate/summary';
             payload = {
                 startup_name: concept.startup_name || 'My Startup',
-                startup_description: concept.elevator_pitch || '',
+                startup_description: fullDescription,
                 startup_sector: profile.sector || 'Technology',
                 target_market: profile.target_market || '',
+                traction: profile.traction || '',
+                tech_stack: (profile.tech_stack || []).join(', '),
+                depth
+            };
+        } else if (activeType === 'custom') {
+            endpoint = '/api/generate/custom';
+            payload = {
+                startup_name: concept.startup_name || 'My Startup',
+                startup_description: fullDescription,
+                startup_sector: profile.sector || 'Technology',
+                prompt: $('#genCustomPrompt').value || 'Generate something professional.',
+                previous_content: bodyEl.textContent || '',
+                depth
             };
         }
 
@@ -368,7 +461,7 @@ function escHtml(str) {
             });
             if (!res.ok) throw new Error(await res.text());
             const data = await res.json();
-            const content = data.email || data.pitch || data.summary || JSON.stringify(data, null, 2);
+            const content = data.email || data.pitch || data.summary || data.content || JSON.stringify(data, null, 2);
 
             titleEl.textContent = `${typeLabels[activeType]} — ${vc.fund_name || 'VC'}`;
             bodyEl.textContent = content;
@@ -417,16 +510,96 @@ function escHtml(str) {
             copyBtn.textContent = '✓ Copied!';
             setTimeout(() => copyBtn.textContent = '📋 Copy', 2000);
         });
+    });
+
+    // Advance to Step 4
+    toStep4.addEventListener('click', () => {
+        state.completed.add(3);
+        populateStep4();
+        goToStep(4);
+    });
+})();
+
+/* ═══════════════════════════════════════════════════════
+   STEP 4 — PRACTICE (Preload VCs + Launch Live Interview)
+═══════════════════════════════════════════════════════ */
+function populateStep4() {
+    const vcSelect = document.getElementById('vcSelect');
+    const contextPitch = document.getElementById('contextPitch');
+    if (!vcSelect) return;
+
+    // Populate VC selector from matched VCs
+    vcSelect.innerHTML = '<option value="" disabled selected>— Select a VC from your matches —</option>';
+    state.selectedVCs.forEach((vc, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${vc.fund_name || vc.name || 'VC'} — ${vc.verdict || ''} (${vc.match_score || '?'}/100)`;
+        vcSelect.appendChild(opt);
+    });
+
+    // If VCs exist, auto-select the first one
+    if (state.selectedVCs.length > 0) {
+        vcSelect.value = '0';
     }
 
-    results.hidden = false;
-    results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Show startup context from synthesis
+    const concept = state.synthesis?.pitchable_concept || {};
+    if (contextPitch) {
+        contextPitch.textContent = concept.elevator_pitch || 'Your startup profile is loaded from uploaded documents.';
+    }
 }
 
-function escHtml(str) {
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-}
+(function () {
+    const setupForm = document.getElementById('interviewSetupForm');
+    const startBtn = document.getElementById('startInterviewBtn');
+    if (!setupForm || !startBtn) return;
+
+    const styleSelect = document.getElementById('interviewStyle');
+    const styleHint = document.getElementById('styleHint');
+    const styleHints = {
+        casual: 'Relaxed and conversational',
+        standard: 'Balanced, covers all key areas',
+        aggressive: 'Confrontational, rapid-fire challenges',
+    };
+    if (styleSelect && styleHint) {
+        styleSelect.addEventListener('change', () => {
+            styleHint.textContent = styleHints[styleSelect.value] || '';
+        });
+    }
+
+    setupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const vcSelect = document.getElementById('vcSelect');
+        const vcIdx = vcSelect ? parseInt(vcSelect.value) : -1;
+        const vc = state.selectedVCs[vcIdx] || {};
+        const concept = state.synthesis?.pitchable_concept || {};
+        const profile = state.synthesis?.startup_profile || {};
+        const ip = state.synthesis?.ip_analysis || {};
+
+        const vcName = vc.fund_name || vc.name || 'Sequoia Capital';
+        const vcMandate = vc.sector_mandate || vc.real_thesis || 'AI';
+        const vcStyle = styleSelect?.value || 'standard';
+
+        // Build a rich startup pitch from synthesis
+        const pitch = [
+            concept.elevator_pitch || '',
+            concept.problem ? `Problem: ${concept.problem}` : '',
+            concept.solution ? `Solution: ${concept.solution}` : '',
+            concept.secret_sauce ? `Secret sauce: ${concept.secret_sauce}` : '',
+            ip.core_innovation ? `Core innovation: ${ip.core_innovation}` : '',
+            profile.target_market ? `Target market: ${profile.target_market}` : '',
+            profile.business_model ? `Business model: ${profile.business_model}` : '',
+        ].filter(Boolean).join('. ');
+
+        // Open the interview page with full context as URL params
+        const params = new URLSearchParams({
+            vc: vcName,
+            mandate: vcMandate,
+            style: vcStyle,
+            pitch: pitch || 'A startup.',
+            reasoning: vc.reasoning || '',
+            approach: vc.suggested_approach || '',
+        });
+        window.open(`interview.html?${params.toString()}`, '_blank');
+    });
+})();
