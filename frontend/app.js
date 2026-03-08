@@ -147,3 +147,73 @@ function escHtml(str) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
 }
+
+/* ── Elevator Pitch Generator ── */
+const pitchForm = document.getElementById('pitchForm');
+const pitchBtn = document.getElementById('pitchBtn');
+const pitchBtnText = pitchBtn.querySelector('.btn-text');
+const pitchBtnLoader = pitchBtn.querySelector('.btn-loader');
+const pitchOutput = document.getElementById('pitchOutput');
+const pitchText = document.getElementById('pitchText');
+const pitchError = document.getElementById('pitchError');
+const pitchErrorDetail = document.getElementById('pitchErrorDetail');
+const pitchCopyBtn = document.getElementById('pitchCopyBtn');
+
+pitchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const payload = {
+        startup_name: document.getElementById('pitchName').value.trim() || 'My Startup',
+        startup_description: document.getElementById('pitchDescription').value.trim() || 'An innovative platform.',
+        startup_sector: document.getElementById('pitchSector').value,
+        tech_stack: document.getElementById('pitchTechStack').value.trim(),
+        target_market: document.getElementById('pitchMarket').value.trim(),
+        funding_ask: document.getElementById('pitchFunding').value.trim(),
+    };
+
+    // Loading state
+    pitchBtnText.hidden = true;
+    pitchBtnLoader.hidden = false;
+    pitchBtn.disabled = true;
+    pitchOutput.hidden = true;
+    pitchError.hidden = true;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/generate/pitch`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`${res.status} ${res.statusText}: ${errText.slice(0, 200)}`);
+        }
+
+        const data = await res.json();
+        pitchText.textContent = data.pitch ?? 'No pitch returned.';
+        pitchOutput.hidden = false;
+        pitchOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        pitchCopyBtn.textContent = 'Copy';
+    } catch (err) {
+        pitchError.hidden = false;
+        pitchErrorDetail.textContent = err.message;
+    } finally {
+        pitchBtnText.hidden = false;
+        pitchBtnLoader.hidden = true;
+        pitchBtn.disabled = false;
+    }
+});
+
+pitchCopyBtn.addEventListener('click', async () => {
+    const text = pitchText.textContent;
+    if (!text) return;
+    try {
+        await navigator.clipboard.writeText(text);
+        pitchCopyBtn.textContent = 'Copied!';
+        setTimeout(() => { pitchCopyBtn.textContent = 'Copy'; }, 2000);
+    } catch {
+        pitchCopyBtn.textContent = 'Copy failed';
+    }
+});
+

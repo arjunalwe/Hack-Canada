@@ -1,222 +1,306 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Co-Pilot — AI Fundraising Intelligence</title>
-  <meta name="description" content="AI-powered fundraising pipeline. Find the right VCs, generate personalized outreach, and simulate your pitch before the room." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Co-Pilot — AI Fundraising Intelligence</title>
+    <meta name="description"
+        content="AI-powered fundraising pipeline. Find the right VCs, generate personalized outreach, and simulate your pitch before the room." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
-  <!-- ── NAV ── -->
-  <nav class="nav" id="nav">
-    <a class="nav-logo" href="#">Co-Pilot</a>
-    <div class="nav-links">
-      <a href="#how-it-works">How it works</a>
-      <a href="#features">Features</a>
-      <a href="#demo">Try it</a>
-      <a href="http://localhost:8000/docs" target="_blank" class="nav-cta">API Docs →</a>
-    </div>
-  </nav>
-
-  <!-- ── HERO ── -->
-  <section class="hero" id="hero">
-    <div class="hero-eyebrow">
-      <span class="dot"></span>
-      AI-Powered Fundraising Intelligence
-    </div>
-    <h1 class="hero-heading">
-      Find the right investors.<br />
-      <em>Before they find you.</em>
-    </h1>
-    <p class="hero-sub">
-      Co-Pilot scrapes live VC databases, matches your startup to the investors who care most, writes your outreach, and lets you practise your pitch against adversarial AI — all in one pipeline.
-    </p>
-    <div class="hero-actions">
-      <a href="#demo" class="btn btn-primary">Start free →</a>
-      <a href="#how-it-works" class="btn btn-ghost">See how it works</a>
-    </div>
-
-    <div class="hero-stats">
-      <div class="stat">
-        <span class="stat-num">4</span>
-        <span class="stat-label">AI Pipeline Stages</span>
-      </div>
-      <div class="stat-div"></div>
-      <div class="stat">
-        <span class="stat-num">~60s</span>
-        <span class="stat-label">Full match analysis</span>
-      </div>
-      <div class="stat-div"></div>
-      <div class="stat">
-        <span class="stat-num">3×</span>
-        <span class="stat-label">Gemini AI agents</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── HOW IT WORKS ── -->
-  <section class="section how" id="how-it-works">
-    <div class="section-label">Process</div>
-    <h2 class="section-heading">Four stages.<br />One pipeline.</h2>
-
-    <div class="steps">
-      <div class="step" data-num="01">
-        <div class="step-icon">⬡</div>
-        <h3>Scrape</h3>
-        <p>Pull fresh VC profiles from live directories — mandates, sectors, cheque sizes, contacts — and keep your database current.</p>
-      </div>
-      <div class="step-arrow">→</div>
-      <div class="step" data-num="02">
-        <div class="step-icon">◈</div>
-        <h3>Match</h3>
-        <p>Fast algorithmic scoring or a multi-agent Gemini pipeline analyses your startup against every VC and ranks them by fit.</p>
-      </div>
-      <div class="step-arrow">→</div>
-      <div class="step" data-num="03">
-        <div class="step-icon">◇</div>
-        <h3>Generate</h3>
-        <p>Auto-write a personalized cold email, 60-second elevator pitch, and one-page executive summary — tailored per investor.</p>
-      </div>
-      <div class="step-arrow">→</div>
-      <div class="step" data-num="04">
-        <div class="step-icon">◎</div>
-        <h3>Simulate</h3>
-        <p>Face an adversarial AI modelled on real VC personas. Get tough questions spoken aloud and receive graded feedback.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── FEATURES ── -->
-  <section class="section features" id="features">
-    <div class="section-label">Capabilities</div>
-    <h2 class="section-heading">Everything you need<br />to close your round.</h2>
-
-    <div class="feature-grid">
-      <div class="feature-card feature-card--wide">
-        <div class="feature-tag">Matching</div>
-        <h3>Fast + Agentic VC Matching</h3>
-        <p>Run a weighted scoring match in seconds, or deploy three specialized Gemini agents — a Startup Analyst, VC Profiler, and Match Reasoner — for deep justifications.</p>
-        <div class="feature-meta">
-          <span>Fast mode — instant</span>
-          <span>Agentic mode — 30–90s</span>
+    <!-- ── NAV ── -->
+    <nav class="nav" id="nav">
+        <a class="nav-logo" href="#">Co-Pilot</a>
+        <div class="nav-links">
+            <a href="#how-it-works">How it works</a>
+            <a href="#features">Features</a>
+            <a href="#demo">Match VCs</a>
+            <a href="#pitch">Pitch</a>
+            <a href="http://localhost:8000/docs" target="_blank" class="nav-cta">API Docs →</a>
         </div>
-      </div>
+    </nav>
 
-      <div class="feature-card">
-        <div class="feature-tag">Outreach</div>
-        <h3>AI-Written Cold Emails</h3>
-        <p>Personalized emails referencing each VC's specific thesis and portfolio — in your chosen tone.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-tag">Content</div>
-        <h3>Pitch & Summary Generator</h3>
-        <p>One-click elevator pitches and executive summaries formatted for investor decks.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-tag">Simulator</div>
-        <h3>Adversarial Pitch Practice</h3>
-        <p>Face an AI VC that asks the hard questions — aggressive, sceptical, and spoken aloud via ElevenLabs text-to-speech.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-tag">Intelligence</div>
-        <h3>Live VC Database</h3>
-        <p>Continuously scraped VC profiles with sector filters, stage filters, and geographic preferences.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── DEMO / FORM ── -->
-  <section class="section demo-section" id="demo">
-    <div class="section-label">Try it now</div>
-    <h2 class="section-heading">Run a match<br />in seconds.</h2>
-
-    <div class="demo-wrap">
-      <form class="demo-form" id="demoForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="startupName">Startup name</label>
-            <input type="text" id="startupName" placeholder="e.g. NeuralMed" />
-          </div>
-          <div class="form-group">
-            <label for="sector">Sector</label>
-            <select id="sector">
-              <option value="AI">AI</option>
-              <option value="healthtech">Healthtech</option>
-              <option value="fintech">Fintech</option>
-              <option value="cleantech">Cleantech</option>
-              <option value="deeptech">Deep Tech</option>
-              <option value="edtech">EdTech</option>
-              <option value="SaaS">SaaS</option>
-            </select>
-          </div>
+    <!-- ── HERO ── -->
+    <section class="hero" id="hero">
+        <div class="hero-eyebrow">
+            <span class="dot"></span>
+            AI-Powered Fundraising Intelligence
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="stage">Stage</label>
-            <select id="stage">
-              <option value="pre-seed">Pre-seed</option>
-              <option value="seed" selected>Seed</option>
-              <option value="series-a">Series A</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="fundingAsk">Funding ask ($)</label>
-            <input type="number" id="fundingAsk" placeholder="e.g. 500000" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="description">What does your startup do?</label>
-          <textarea id="description" rows="3" placeholder="One clear sentence about the problem you solve and how..."></textarea>
-        </div>
-        <div class="form-group">
-          <label for="location">Location</label>
-          <input type="text" id="location" placeholder="e.g. Toronto, Ontario" />
+        <h1 class="hero-heading">
+            Find the right investors.<br />
+            <em>Before they find you.</em>
+        </h1>
+        <p class="hero-sub">
+            Co-Pilot scrapes live VC databases, matches your startup to the investors who care most, writes your
+            outreach, and lets you practise your pitch against adversarial AI — all in one pipeline.
+        </p>
+        <div class="hero-actions">
+            <a href="#demo" class="btn btn-primary">Start free →</a>
+            <a href="#how-it-works" class="btn btn-ghost">See how it works</a>
         </div>
 
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary" id="matchBtn">
-            <span class="btn-text">Find my VCs →</span>
-            <span class="btn-loader" hidden>Matching…</span>
-          </button>
-          <span class="form-note">Results powered by your local API on port 8000</span>
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-num">4</span>
+                <span class="stat-label">AI Pipeline Stages</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat">
+                <span class="stat-num">~60s</span>
+                <span class="stat-label">Full match analysis</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat">
+                <span class="stat-num">3×</span>
+                <span class="stat-label">Gemini AI agents</span>
+            </div>
         </div>
-      </form>
+    </section>
 
-      <div class="demo-results" id="demoResults" hidden>
-        <div class="results-header">
-          <h3>Top matches</h3>
-          <span id="resultsMode" class="badge"></span>
+    <!-- ── HOW IT WORKS ── -->
+    <section class="section how" id="how-it-works">
+        <div class="section-label">Process</div>
+        <h2 class="section-heading">Four stages.<br />One pipeline.</h2>
+
+        <div class="steps">
+            <div class="step" data-num="01">
+                <div class="step-icon">⬡</div>
+                <h3>Scrape</h3>
+                <p>Pull fresh VC profiles from live directories — mandates, sectors, cheque sizes, contacts — and keep
+                    your database current.</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step" data-num="02">
+                <div class="step-icon">◈</div>
+                <h3>Match</h3>
+                <p>Fast algorithmic scoring or a multi-agent Gemini pipeline analyses your startup against every VC and
+                    ranks them by fit.</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step" data-num="03">
+                <div class="step-icon">◇</div>
+                <h3>Generate</h3>
+                <p>Auto-write a personalized cold email, 60-second elevator pitch, and one-page executive summary —
+                    tailored per investor.</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step" data-num="04">
+                <div class="step-icon">◎</div>
+                <h3>Simulate</h3>
+                <p>Face an adversarial AI modelled on real VC personas. Get tough questions spoken aloud and receive
+                    graded feedback.</p>
+            </div>
         </div>
-        <div class="results-list" id="resultsList"></div>
-      </div>
+    </section>
 
-      <div class="demo-error" id="demoError" hidden>
-        <p>⚠ Could not reach the API. Make sure the backend is running on <code>localhost:8000</code>.</p>
-        <p class="error-detail" id="errorDetail"></p>
-      </div>
-    </div>
-  </section>
+    <!-- ── FEATURES ── -->
+    <section class="section features" id="features">
+        <div class="section-label">Capabilities</div>
+        <h2 class="section-heading">Everything you need<br />to close your round.</h2>
 
-  <!-- ── FOOTER ── -->
-  <footer class="footer">
-    <div class="footer-inner">
-      <span class="footer-logo">Co-Pilot</span>
-      <span class="footer-copy">Built for Hack Canada · 2026</span>
-      <div class="footer-links">
-        <a href="http://localhost:8000/docs" target="_blank">API Docs</a>
-        <a href="http://localhost:8000/health" target="_blank">Health</a>
-      </div>
-    </div>
-  </footer>
+        <div class="feature-grid">
+            <div class="feature-card feature-card--wide">
+                <div class="feature-tag">Matching</div>
+                <h3>Fast + Agentic VC Matching</h3>
+                <p>Run a weighted scoring match in seconds, or deploy three specialized Gemini agents — a Startup
+                    Analyst, VC Profiler, and Match Reasoner — for deep justifications.</p>
+                <div class="feature-meta">
+                    <span>Fast mode — instant</span>
+                    <span>Agentic mode — 30–90s</span>
+                </div>
+            </div>
 
-  <script src="app.js"></script>
+            <div class="feature-card">
+                <div class="feature-tag">Outreach</div>
+                <h3>AI-Written Cold Emails</h3>
+                <p>Personalized emails referencing each VC's specific thesis and portfolio — in your chosen tone.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-tag">Content</div>
+                <h3>Pitch & Summary Generator</h3>
+                <p>One-click elevator pitches and executive summaries formatted for investor decks.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-tag">Simulator</div>
+                <h3>Adversarial Pitch Practice</h3>
+                <p>Face an AI VC that asks the hard questions — aggressive, sceptical, and spoken aloud via ElevenLabs
+                    text-to-speech.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-tag">Intelligence</div>
+                <h3>Live VC Database</h3>
+                <p>Continuously scraped VC profiles with sector filters, stage filters, and geographic preferences.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── DEMO / FORM ── -->
+    <section class="section demo-section" id="demo">
+        <div class="section-label">Try it now</div>
+        <h2 class="section-heading">Run a match<br />in seconds.</h2>
+
+        <div class="demo-wrap">
+            <form class="demo-form" id="demoForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="startupName">Startup name</label>
+                        <input type="text" id="startupName" placeholder="e.g. NeuralMed" />
+                    </div>
+                    <div class="form-group">
+                        <label for="sector">Sector</label>
+                        <select id="sector">
+                            <option value="AI">AI</option>
+                            <option value="healthtech">Healthtech</option>
+                            <option value="fintech">Fintech</option>
+                            <option value="cleantech">Cleantech</option>
+                            <option value="deeptech">Deep Tech</option>
+                            <option value="edtech">EdTech</option>
+                            <option value="SaaS">SaaS</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="stage">Stage</label>
+                        <select id="stage">
+                            <option value="pre-seed">Pre-seed</option>
+                            <option value="seed" selected>Seed</option>
+                            <option value="series-a">Series A</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fundingAsk">Funding ask ($)</label>
+                        <input type="number" id="fundingAsk" placeholder="e.g. 500000" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="description">What does your startup do?</label>
+                    <textarea id="description" rows="3"
+                        placeholder="One clear sentence about the problem you solve and how..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" placeholder="e.g. Toronto, Ontario" />
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="matchBtn">
+                        <span class="btn-text">Find my VCs →</span>
+                        <span class="btn-loader" hidden>Matching…</span>
+                    </button>
+                    <span class="form-note">Results powered by your local API on port 8000</span>
+                </div>
+            </form>
+
+            <div class="demo-results" id="demoResults" hidden>
+                <div class="results-header">
+                    <h3>Top matches</h3>
+                    <span id="resultsMode" class="badge"></span>
+                </div>
+                <div class="results-list" id="resultsList"></div>
+            </div>
+
+            <div class="demo-error" id="demoError" hidden>
+                <p>⚠ Could not reach the API. Make sure the backend is running on <code>localhost:8000</code>.</p>
+                <p class="error-detail" id="errorDetail"></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PITCH GENERATOR ── -->
+    <section class="section pitch-section" id="pitch">
+        <div class="section-label">Pitch Generator</div>
+        <h2 class="section-heading">60-second elevator pitch,<br />written by AI.</h2>
+
+        <div class="pitch-wrap">
+            <form class="pitch-form" id="pitchForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="pitchName">Startup name</label>
+                        <input type="text" id="pitchName" placeholder="e.g. NeuralMed" />
+                    </div>
+                    <div class="form-group">
+                        <label for="pitchSector">Sector</label>
+                        <select id="pitchSector">
+                            <option value="AI">AI</option>
+                            <option value="healthtech">Healthtech</option>
+                            <option value="fintech">Fintech</option>
+                            <option value="cleantech">Cleantech</option>
+                            <option value="deeptech">Deep Tech</option>
+                            <option value="edtech">EdTech</option>
+                            <option value="SaaS">SaaS</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="pitchDescription">What does your startup do?</label>
+                    <textarea id="pitchDescription" rows="3"
+                        placeholder="Describe your product, the problem you solve, and your key differentiator..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="pitchTechStack">Tech stack <span class="label-opt">(optional)</span></label>
+                        <input type="text" id="pitchTechStack" placeholder="e.g. Python, PyTorch, AWS" />
+                    </div>
+                    <div class="form-group">
+                        <label for="pitchMarket">Target market <span class="label-opt">(optional)</span></label>
+                        <input type="text" id="pitchMarket" placeholder="e.g. Canadian hospitals" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="pitchFunding">Funding ask <span class="label-opt">(optional)</span></label>
+                    <input type="text" id="pitchFunding" placeholder="e.g. $500,000 seed round" />
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="pitchBtn">
+                        <span class="btn-text">Generate pitch →</span>
+                        <span class="btn-loader" hidden>Generating…</span>
+                    </button>
+                    <span class="form-note">Powered by Gemini AI</span>
+                </div>
+            </form>
+
+            <div class="pitch-output" id="pitchOutput" hidden>
+                <div class="pitch-output-header">
+                    <span class="pitch-output-label">Your elevator pitch</span>
+                    <button class="pitch-copy-btn" id="pitchCopyBtn" title="Copy to clipboard">Copy</button>
+                </div>
+                <p class="pitch-text" id="pitchText"></p>
+            </div>
+
+            <div class="demo-error" id="pitchError" hidden>
+                <p>⚠ Could not reach the API. Make sure the backend is running on <code>localhost:8000</code>.</p>
+                <p class="error-detail" id="pitchErrorDetail"></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <span class="footer-logo">Co-Pilot</span>
+            <span class="footer-copy">Built for Hack Canada · 2026</span>
+            <div class="footer-links">
+                <a href="http://localhost:8000/docs" target="_blank">API Docs</a>
+                <a href="http://localhost:8000/health" target="_blank">Health</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
 </body>
+
 </html>

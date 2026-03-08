@@ -679,6 +679,85 @@ a {
     background: var(--accent-dim);
 }
 
+/* ───────────────────────────────────────────────────
+   PITCH GENERATOR SECTION
+─────────────────────────────────────────────────── */
+.pitch-section {
+    border-top: 1px solid var(--border);
+}
+
+.pitch-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.pitch-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 680px;
+}
+
+.label-opt {
+    font-size: 0.72em;
+    color: var(--text-subtle);
+    font-weight: 400;
+}
+
+.pitch-output {
+    max-width: 680px;
+    background: var(--surface);
+    border: 1px solid var(--border-hi);
+    border-radius: var(--radius);
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+}
+
+.pitch-output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+}
+
+.pitch-output-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.pitch-copy-btn {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border-hi);
+    border-radius: var(--radius-sm);
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.pitch-copy-btn:hover {
+    color: var(--accent);
+    border-color: rgba(212, 255, 92, 0.4);
+    background: var(--accent-dim);
+}
+
+.pitch-text {
+    padding: 24px 28px;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+}
+
 /* Error */
 .demo-error {
     max-width: 540px;
