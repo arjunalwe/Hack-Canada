@@ -2,11 +2,10 @@
 
 from typing import Any, Dict
 
-import google.generativeai as genai
+from backboard import BackboardClient
 from config import settings
 
-genai.configure(api_key=settings.GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-2.0-flash")
+client = BackboardClient(api_key=settings.BACKBOARD_API_KEY)
 
 
 async def generate_cold_email(data: Dict[str, Any]) -> str:
@@ -33,10 +32,16 @@ Rules:
 - Include one impressive metric or technical differentiator.
 - End with a clear call to action.
 - Do NOT use generic filler like "I hope this finds you well."
-- Return ONLY the email text (subject line + body), no commentary.
+Return ONLY the email text (subject line + body), no commentary.
 """
-    response = model.generate_content(prompt)
-    return response.text
+    assistant = await client.create_assistant(name="Cold Email Assistant", system_prompt="You write cold emails.")
+    thread = await client.create_thread(assistant.assistant_id)
+    response = await client.add_message(
+        thread_id=thread.thread_id,
+        content=prompt,
+        stream=False
+    )
+    return response.content.strip()
 
 
 async def generate_elevator_pitch(data: Dict[str, Any]) -> str:
@@ -57,10 +62,16 @@ Rules:
 - Under 150 words (about 60 seconds spoken).
 - Be specific, not generic. Use concrete numbers.
 - Make the opening line memorable and punchy.
-- Return ONLY the pitch script, no commentary.
+Return ONLY the pitch script, no commentary.
 """
-    response = model.generate_content(prompt)
-    return response.text
+    assistant = await client.create_assistant(name="Pitch Generator", system_prompt="You write elevator pitches.")
+    thread = await client.create_thread(assistant.assistant_id)
+    response = await client.add_message(
+        thread_id=thread.thread_id,
+        content=prompt,
+        stream=False
+    )
+    return response.content.strip()
 
 
 async def generate_exec_summary(data: Dict[str, Any]) -> str:
@@ -90,7 +101,13 @@ Sections:
 Rules:
 - Use markdown formatting.
 - Be concise but compelling.
-- Return ONLY the executive summary, no commentary.
+Return ONLY the executive summary, no commentary.
 """
-    response = model.generate_content(prompt)
-    return response.text
+    assistant = await client.create_assistant(name="Summary Generator", system_prompt="You write executive summaries.")
+    thread = await client.create_thread(assistant.assistant_id)
+    response = await client.add_message(
+        thread_id=thread.thread_id,
+        content=prompt,
+        stream=False
+    )
+    return response.content.strip()

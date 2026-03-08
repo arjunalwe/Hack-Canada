@@ -1,0 +1,60 @@
+FINANCIAL PROJECTIONS — CropVision / AgriSense
+================================================
+
+Revenue Model: SaaS + Hardware
+
+YEAR 1 (2025)
+- Pilot customers carried forward: 12 farms
+- New customer target: 488 farms (Ontario focus)
+- Total customers EOY: 500
+- Average hectares per farm: 500
+- SaaS revenue per customer: $2,250/year
+- Total SaaS ARR: $1,125,000
+- Hardware kits sold: 200 @ $3,400 = $680,000
+- Total Revenue: $1,805,000
+- COGS: $720,000 (40%)
+- Gross Margin: 60%
+- OpEx: $2,400,000
+- Net: -$595,000
+- Burn rate: ~$50K/month
+
+YEAR 2 (2026)
+- Expand to Saskatchewan, Alberta, Manitoba
+- Total customers EOY: 2,200
+- SaaS ARR: $4,950,000
+- Hardware revenue: $1,360,000
+- Total Revenue: $6,310,000
+- Gross Margin: 68%
+- OpEx: $4,800,000
+- Net: -$508,000
+- Approaching breakeven
+
+YEAR 3 (2027)
+- US Midwest launch (Iowa, Illinois, Indiana)
+- Total customers EOY: 8,500
+- SaaS ARR: $19,125,000
+- Hardware revenue: $3,400,000
+- Enterprise contracts: $2,000,000
+- Total Revenue: $24,525,000
+- Gross Margin: 72%
+- OpEx: $12,000,000
+- Net: $5,658,000
+- PROFITABLE
+
+KEY METRICS
+- CAC: $1,200 (Year 1) → $800 (Year 3)
+- LTV: $11,250 (5-year customer lifetime assumed)
+- LTV/CAC: 9.4x (Year 1) → 14.1x (Year 3)
+- Monthly churn: <2% (seasonal business — annual contracts)
+- NRR: 115% (farms expand monitored hectares)
+
+UNIT ECONOMICS
+- Marginal cost per hectare monitored: $1.80
+- Revenue per hectare: $4.50
+- Contribution margin per hectare: $2.70 (60%)
+- At 50K hectares: contribution = $135,000/month
+
+FUNDING HISTORY
+- Pre-seed (2023): $500K from Vector Institute + NSERC grant
+- Current round: $2.5M seed (raising now)
+- Projected Series A: $12M (2026, post-Western Canada expansion)

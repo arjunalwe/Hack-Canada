@@ -37,7 +37,10 @@ async def get_vc_question(req: QuestionRequest, user: dict = Depends(get_current
 async def get_vc_question_audio(req: QuestionRequest, user: dict = Depends(get_current_user)):
     """Generate a VC question and stream it as audio via ElevenLabs."""
     question_text = await generate_vc_question(req.model_dump())
-    audio_stream = await stream_audio_response(question_text)
+    
+    # Pass the vc_name to deterministically select a consistent ElevenLabs voice for this VC
+    audio_stream = stream_audio_response(question_text, req.vc_name)
+    
     return StreamingResponse(audio_stream, media_type="audio/mpeg", headers={
         "X-Question-Text": question_text[:200],  # also send text in header
     })
