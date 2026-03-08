@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers import scraper_router, matching_router, generation_router, simulator_router, brain_router
+from routers import auth_router
 
 app = FastAPI(
     title="Fundraising Co-Pilot API",
@@ -26,6 +27,7 @@ app.include_router(matching_router.router, prefix="/api/match", tags=["Matching"
 app.include_router(generation_router.router, prefix="/api/generate", tags=["Generation"])
 app.include_router(simulator_router.router, prefix="/api/simulator", tags=["Simulator"])
 app.include_router(brain_router.router, prefix="/api/brain", tags=["Brain (Document Analysis)"])
+app.include_router(auth_router.router, prefix="/api/auth", tags=["Auth0"])
 
 
 @app.get("/")

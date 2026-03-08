@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile — Co-Pilot</title>
+    <link rel="stylesheet" href="auth.css" />
+
+    <script>
+        window.AUTH0_CONFIG = {
+            domain: "dev-uzi6d8f6w5w0310c.us.auth0.com",
+            clientId: "9CXr4jjIGbVealhzVYwwYPCI1ePrThbr",
+            audience: "",
+            redirectUri: window.location.origin + "/auth/callback.html",
+            apiBase: "http://localhost:8000",
+        };
+    </script>
+</head>
+
+<body>
+
+    <div class="a0-bg" aria-hidden="true"></div>
+    <div class="a0-toast" id="a0-toast" role="status" aria-live="polite"></div>
+
+    <main class="a0-page">
+        <div class="a0-card" id="a0-card">
+
+            <!-- Logo -->
+            <div class="a0-logo">
+                <div class="a0-logo-symbol">🚀</div>
+                <span class="a0-logo-name">Co-Pilot</span>
+            </div>
+
+            <!-- Loading state -->
+            <div id="loading-wrap" class="a0-loading-wrap">
+                <div class="a0-spinner" role="status" aria-label="Loading profile"></div>
+                <p style="color:var(--a0-muted);font-size:.9rem;">Loading your profile…</p>
+            </div>
+
+            <!-- Profile content (hidden until loaded) -->
+            <div id="profile-wrap" hidden>
+
+                <!-- Avatar + name -->
+                <div class="a0-avatar-wrap">
+                    <div id="avatar-container">
+                        <div class="a0-avatar-fallback" id="avatar-fallback" aria-hidden="true">👤</div>
+                    </div>
+                    <div>
+                        <div class="a0-user-name" id="user-name">—</div>
+                        <div class="a0-user-email" id="user-email">—</div>
+                    </div>
+                </div>
+
+                <!-- Info rows -->
+                <div class="a0-info-row">
+                    <span class="a0-info-key">User ID</span>
+                    <span class="a0-info-val" id="user-sub"
+                        style="font-family:var(--a0-font-m);font-size:.78rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">—</span>
+                </div>
+                <div class="a0-info-row">
+                    <span class="a0-info-key">Provider</span>
+                    <span class="a0-info-val" id="user-provider">—</span>
+                </div>
+                <div class="a0-info-row">
+                    <span class="a0-info-key">Email verified</span>
+                    <span class="a0-info-val" id="user-verified">—</span>
+                </div>
+                <div class="a0-info-row">
+                    <span class="a0-info-key">MFA</span>
+                    <span class="a0-info-val" id="mfa-status">
+                        <span class="a0-pill a0-pill--off">Checking…</span>
+                    </span>
+                </div>
+                <div class="a0-info-row">
+                    <span class="a0-info-key">Login type</span>
+                    <span class="a0-info-val" id="user-conntype">—</span>
+                </div>
+
+                <!-- ── Security actions ───────────────────────────── -->
+                <p class="a0-section-label">Security</p>
+
+                <button class="a0-btn a0-btn-success" id="btn-enroll-mfa" type="button">
+                    <span class="a0-btn-text">🛡 Enroll in Multi-Factor Authentication</span>
+                </button>
+
+                <button class="a0-btn a0-btn-ghost" id="btn-reset-pw" type="button" style="margin-top:.55rem;">
+                    <span class="a0-btn-text">🔑 Send password reset email</span>
+                </button>
+
+                <!-- ── Navigation ─────────────────────────────────── -->
+                <p class="a0-section-label">Navigation</p>
+
+                <a href="../index.html" class="a0-btn a0-btn-primary" style="margin-bottom:.55rem;">
+                    <span>← Back to Co-Pilot</span>
+                </a>
+
+                <button class="a0-btn a0-btn-danger" id="btn-logout" type="button">
+                    <span class="a0-btn-text">Sign out</span>
+                </button>
+            </div>
+
+            <!-- Error state -->
+            <div id="error-wrap" hidden style="text-align:center;">
+                <p style="color:var(--a0-red);margin-bottom:1rem;">Not signed in.</p>
+                <a href="login.html" class="a0-btn a0-btn-primary" style="display:inline-flex;">Sign in →</a>
+            </div>
+
+            <div class="a0-powered">
+                Secured by <span>Auth0</span>
+            </div>
+        </div>
+    </main>
+
+    <script src="auth.js"></script>
+    <script>
+        (async () => {
+            "use strict";
+            const loadWrap = document.getElementById("loading-wrap");
+            const profileWrap = document.getElementById("profile-wrap");
+            const errWrap = document.getElementById("error-wrap");
+
+            function showError() { loadWrap.hidden = true; errWrap.hidden = false; }
+
+            function setLoading(btn, on) {
+                if (on) btn.setAttribute("data-loading", "");
+                else btn.removeAttribute("data-loading");
+            }
+
+            // ── 1. Init & check auth ──────────────────────────────
+            try {
+                await Auth0.init();
+                const authed = await Auth0.isAuthenticated();
+                if (!authed) { showError(); return; }
+
+                const user = await Auth0.getUser();
+                if (!user) { showError(); return; }
+
+                // ── 2. Populate profile ───────────────────────────
+                document.getElementById("user-name").textContent = user.name || user.email || "User";
+                document.getElementById("user-email").textContent = user.email || "—";
+                document.getElementById("user-sub").textContent = user.sub || "—";
+                document.getElementById("user-sub").title = user.sub || "";
+
+                // Avatar
+                if (user.picture) {
+                    const img = document.createElement("img");
+                    img.src = user.picture; img.alt = user.name || "Avatar"; img.className = "a0-avatar";
+                    document.getElementById("avatar-container").replaceChildren(img);
+                } else {
+                    const initials = (user.name || user.email || "?")[0].toUpperCase();
+                    document.getElementById("avatar-fallback").textContent = initials;
+                }
+
+                // Provider / connection
+                const sub = user.sub || "";
+                const provider = sub.startsWith("google-") ? "🔵 Google"
+                    : sub.startsWith("github") ? "🐙 GitHub"
+                        : sub.startsWith("linkedin") ? "🔷 LinkedIn"
+                            : sub.startsWith("email|") ? "✉️ passwordless"
+                                : sub.startsWith("auth0|") ? "🔑 Email / Password"
+                                    : sub;
+                document.getElementById("user-provider").textContent = provider;
+                document.getElementById("user-verified").innerHTML =
+                    user.email_verified
+                        ? '<span class="a0-pill a0-pill--on">✓ Verified</span>'
+                        : '<span class="a0-pill a0-pill--off">Not verified</span>';
+                document.getElementById("user-conntype").textContent =
+                    sub.startsWith("email|") ? "Passwordless (magic link)" : "Standard";
+
+                // ── 3. MFA status ─────────────────────────────────
+                try {
+                    const mfa = await Auth0.getMFAStatus();
+                    document.getElementById("mfa-status").innerHTML = mfa.enrolled
+                        ? '<span class="a0-pill a0-pill--on">🛡 Enabled</span>'
+                        : '<span class="a0-pill a0-pill--off">Not enrolled</span>';
+                } catch (_) {
+                    document.getElementById("mfa-status").innerHTML =
+                        '<span class="a0-pill a0-pill--off">Unknown</span>';
+                }
+
+                loadWrap.hidden = true;
+                profileWrap.hidden = false;
+
+            } catch (err) {
+                console.error(err); showError();
+            }
+
+            // ── 4. Enroll MFA ──────────────────────────────────
+            document.getElementById("btn-enroll-mfa").addEventListener("click", async () => {
+                const btn = document.getElementById("btn-enroll-mfa");
+                setLoading(btn, true);
+                try {
+                    const result = await Auth0.enrollMFA();
+                    Auth0.showToast("MFA enrollment started. " + (result.message || ""), "ok");
+                } catch (e) {
+                    Auth0.showToast(e.message || "MFA enrollment failed.", "err");
+                } finally { setLoading(btn, false); }
+            });
+
+            // ── 5. Password reset ──────────────────────────────
+            document.getElementById("btn-reset-pw").addEventListener("click", async () => {
+                const btn = document.getElementById("btn-reset-pw");
+                setLoading(btn, true);
+                const email = document.getElementById("user-email").textContent;
+                try {
+                    const resp = await fetch(`https://${window.AUTH0_CONFIG.domain}/dbconnections/change_password`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            client_id: window.AUTH0_CONFIG.clientId,
+                            email,
+                            connection: "Username-Password-Authentication",
+                        }),
+                    });
+                    if (!resp.ok) throw new Error("Request failed");
+                    Auth0.showToast("Password reset email sent! Check your inbox.", "ok");
+                } catch (e) {
+                    Auth0.showToast("Could not send reset email.", "err");
+                } finally { setLoading(btn, false); }
+            });
+
+            // ── 6. Logout ──────────────────────────────────────
+            document.getElementById("btn-logout").addEventListener("click", async () => {
+                const btn = document.getElementById("btn-logout");
+                setLoading(btn, true);
+                sessionStorage.removeItem("a0_user");
+                await Auth0.logout();
+            });
+
+        })();
+    </script>
+
+</body>
+
+</html>

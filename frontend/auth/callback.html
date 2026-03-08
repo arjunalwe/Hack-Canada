@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signing in… — Co-Pilot</title>
+    <link rel="stylesheet" href="auth.css" />
+
+    <script>
+        window.AUTH0_CONFIG = {
+            domain: "dev-uzi6d8f6w5w0310c.us.auth0.com",
+            clientId: "9CXr4jjIGbVealhzVYwwYPCI1ePrThbr",
+            audience: "",
+            redirectUri: window.location.origin + "/auth/callback.html",
+            apiBase: "http://localhost:8000",
+        };
+    </script>
+</head>
+
+<body>
+
+    <div class="a0-bg" aria-hidden="true"></div>
+
+    <main class="a0-page">
+        <div class="a0-card" id="a0-card" style="text-align:center;">
+            <div class="a0-logo" style="justify-content:center;margin-bottom:2rem;">
+                <div class="a0-logo-symbol">🚀</div>
+                <span class="a0-logo-name">Co-Pilot</span>
+            </div>
+
+            <div class="a0-loading-wrap" id="loading-wrap">
+                <div class="a0-spinner" role="status" aria-label="Loading"></div>
+                <p id="status-msg" style="color:var(--a0-muted);font-size:.9rem;">Completing sign-in…</p>
+            </div>
+
+            <div id="error-wrap" hidden style="color:var(--a0-red);font-size:.9rem;">
+                <p id="error-msg">Something went wrong.</p>
+                <a href="login.html" class="a0-btn a0-btn-ghost" style="margin-top:1rem;display:inline-flex;">← Back to
+                    login</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="auth.js"></script>
+    <script>
+        (async () => {
+            "use strict";
+            const statusEl = document.getElementById("status-msg");
+            const loadWrap = document.getElementById("loading-wrap");
+            const errWrap = document.getElementById("error-wrap");
+            const errMsg = document.getElementById("error-msg");
+
+            function showError(msg) {
+                loadWrap.hidden = true;
+                errWrap.hidden = false;
+                errMsg.textContent = msg;
+            }
+
+            try {
+                // Only handle the callback if Auth0 code/state params are present
+                const params = new URLSearchParams(window.location.search);
+                if (!params.has("code") && !params.has("error")) {
+                    // Direct navigation — send to login
+                    window.location.replace("login.html");
+                    return;
+                }
+
+                if (params.has("error")) {
+                    showError(params.get("error_description") || params.get("error") || "Auth0 returned an error.");
+                    return;
+                }
+
+                statusEl.textContent = "Verifying your identity…";
+                const { user } = await Auth0.handleRedirectCallback();
+
+                statusEl.textContent = `Welcome, ${user?.name || user?.email || "there"}! Redirecting…`;
+
+                // Store a lightweight flag so the main app knows who is signed in
+                // (NEVER store the raw token — Auth0 SDK manages it in memory)
+                if (user) {
+                    sessionStorage.setItem("a0_user", JSON.stringify({
+                        sub: user.sub,
+                        name: user.name,
+                        email: user.email,
+                        picture: user.picture,
+                    }));
+                }
+
+                setTimeout(() => { window.location.replace("../index.html"); }, 800);
+
+            } catch (err) {
+                console.error("Auth0 callback error:", err);
+                showError(err.message || "Authentication failed. Please try again.");
+            }
+        })();
+    </script>
+
+</body>
+
+</html>
