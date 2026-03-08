@@ -7,7 +7,6 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from typing import Optional
 
-from auth.auth0 import get_current_user
 from simulator.vc_persona import generate_vc_question, stream_audio_response, evaluate_response
 from simulator.interview_session import (
     create_session,
@@ -63,14 +62,14 @@ class InterviewRespondRequest(BaseModel):
 # ══════════════════════════════════════════════════════════════════
 
 @router.post("/question")
-async def get_vc_question(req: QuestionRequest, user: dict = Depends(get_current_user)):
+async def get_vc_question(req: QuestionRequest):
     """Generate a tough VC question based on the pitch and investor profile."""
     question_text = await generate_vc_question(req.model_dump())
     return {"question": question_text}
 
 
 @router.post("/question/audio")
-async def get_vc_question_audio(req: QuestionRequest, user: dict = Depends(get_current_user)):
+async def get_vc_question_audio(req: QuestionRequest):
     """Generate a VC question and stream it as audio via ElevenLabs."""
     try:
         question_text = await generate_vc_question(req.model_dump())
@@ -95,7 +94,7 @@ async def get_vc_question_audio(req: QuestionRequest, user: dict = Depends(get_c
 
 
 @router.post("/evaluate")
-async def evaluate_pitch_response(req: EvaluateRequest, user: dict = Depends(get_current_user)):
+async def evaluate_pitch_response(req: EvaluateRequest):
     """Evaluate the founder's response to the VC question."""
     evaluation = await evaluate_response(req.model_dump())
     return {"evaluation": evaluation}
@@ -106,7 +105,7 @@ async def evaluate_pitch_response(req: EvaluateRequest, user: dict = Depends(get
 # ══════════════════════════════════════════════════════════════════
 
 @router.post("/interview/start")
-async def start_interview(req: InterviewStartRequest, user: dict = Depends(get_current_user)):
+async def start_interview(req: InterviewStartRequest):
     """Create a new interview session and generate the first VC question.
     
     If startup_pitch is omitted, the backend automatically pulls the
@@ -169,7 +168,7 @@ async def start_interview(req: InterviewStartRequest, user: dict = Depends(get_c
 
 
 @router.get("/interview/context")
-async def get_interview_context(user: dict = Depends(get_current_user)):
+async def get_interview_context():
     """Get the startup context from uploaded brain documents.
     
     Returns the synthesized pitch and profile so the frontend can
@@ -212,7 +211,7 @@ async def get_interview_context(user: dict = Depends(get_current_user)):
 
 
 @router.post("/interview/{session_id}/respond")
-async def interview_respond(session_id: str, req: InterviewRespondRequest, user: dict = Depends(get_current_user)):
+async def interview_respond(session_id: str, req: InterviewRespondRequest):
     """Accept user's response, score it, generate next question or end."""
     session = get_session(session_id)
     if not session:
@@ -273,7 +272,7 @@ async def interview_respond(session_id: str, req: InterviewRespondRequest, user:
 
 
 @router.post("/interview/{session_id}/audio")
-async def interview_audio(session_id: str, user: dict = Depends(get_current_user)):
+async def interview_audio(session_id: str):
     """Stream TTS audio for the latest VC question in the session."""
     session = get_session(session_id)
     if not session:
@@ -298,7 +297,7 @@ async def interview_audio(session_id: str, user: dict = Depends(get_current_user
 
 
 @router.post("/interview/{session_id}/end")
-async def end_interview(session_id: str, user: dict = Depends(get_current_user)):
+async def end_interview(session_id: str):
     """Force-end the interview and generate dual-agent feedback."""
     session = get_session(session_id)
     if not session:
@@ -318,7 +317,7 @@ async def end_interview(session_id: str, user: dict = Depends(get_current_user))
 
 
 @router.get("/interview/{session_id}/status")
-async def interview_status(session_id: str, user: dict = Depends(get_current_user)):
+async def interview_status(session_id: str):
     """Get current session state."""
     session = get_session(session_id)
     if not session:

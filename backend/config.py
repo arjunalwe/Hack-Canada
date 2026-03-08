@@ -16,11 +16,7 @@ class Settings:
     ELEVENLABS_API_KEY: str = os.getenv("ELEVENLABS_API_KEY", "")
     ELEVENLABS_VOICE_ID: str = os.getenv("ELEVENLABS_VOICE_ID", "")
 
-    # ── Auth0 ───────────────────────────────────────────────
-    AUTH0_DOMAIN: str = os.getenv("AUTH0_DOMAIN", "")
-    AUTH0_CLIENT_ID: str = os.getenv("AUTH0_CLIENT_ID", "")
-    AUTH0_CLIENT_SECRET: str = os.getenv("AUTH0_CLIENT_SECRET", "")
-    AUTH0_API_AUDIENCE: str = os.getenv("AUTH0_API_AUDIENCE", "")
+
 
     # ── Backboard.io ────────────────────────────────────────
     BACKBOARD_API_KEY: str = os.getenv("BACKBOARD_API_KEY", "")

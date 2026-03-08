@@ -14,18 +14,6 @@
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 
-  <!-- ── Auth0 config ── -->
-  <script>
-      window.AUTH0_CONFIG = {
-          domain: "dev-uzi6d8f6w5w0310c.us.auth0.com",
-          clientId: "9CXr4jjIGbVealhzVYwwYPCI1ePrThbr",
-          audience: "",
-          redirectUri: "http://localhost:3000/auth/callback.html",
-          apiBase: "http://localhost:8000",
-      };
-  </script>
-  <script src="auth/auth.js"></script>
-  <script src="auth/auth-guard.js"></script>
 </head>
 
 <body>
@@ -38,7 +26,6 @@
       <a href="#" class="pipe-step-link" data-step="2">2 · Match</a>
       <a href="#" class="pipe-step-link" data-step="3">3 · Generate</a>
       <a href="#" class="pipe-step-link" data-step="4">4 · Practice</a>
-      <a href="#" id="logoutBtn" style="color:var(--gx-red);margin-left:1rem;font-weight:600;font-size:0.85rem;">Logout</a>
     </div>
   </nav>
 
@@ -139,50 +126,50 @@
         </div>
       </div>
 
-        <!-- Context from Brain -->
-        <div class="match-context" id="matchContext">
-          <div class="context-card-header">
-            <span class="context-icon">🧠</span>
-            <span class="context-label">Using your synthesized profile</span>
-          </div>
-          <p class="context-pitch" id="matchContextPitch"></p>
+      <!-- Context from Brain -->
+      <div class="match-context" id="matchContext">
+        <div class="context-card-header">
+          <span class="context-icon">🧠</span>
+          <span class="context-label">Using your synthesized profile</span>
         </div>
+        <p class="context-pitch" id="matchContextPitch"></p>
+      </div>
 
-        <!-- Match action -->
-        <div class="match-action">
-          <button class="btn btn-primary" id="matchBtn">
-            <span class="btn-text">🤖 Find my VCs →</span>
-            <span class="btn-loader" hidden>Running 3 AI agents… (30-60s)</span>
-          </button>
-          <span class="form-note">Multi-agent pipeline: Startup Analyst → VC Profiler → Match Reasoner</span>
+      <!-- Match action -->
+      <div class="match-action">
+        <button class="btn btn-primary" id="matchBtn">
+          <span class="btn-text">🤖 Find my VCs →</span>
+          <span class="btn-loader" hidden>Running 3 AI agents… (30-60s)</span>
+        </button>
+        <span class="form-note">Multi-agent pipeline: Startup Analyst → VC Profiler → Match Reasoner</span>
+      </div>
+
+      <!-- Loading bar -->
+      <div class="match-loading" id="matchLoading" hidden>
+        <div class="match-loading-bar">
+          <div class="match-loading-fill" id="matchLoadingFill"></div>
         </div>
+        <p class="match-loading-status" id="matchLoadingStatus">Initializing AI agents…</p>
+      </div>
 
-        <!-- Loading bar -->
-        <div class="match-loading" id="matchLoading" hidden>
-          <div class="match-loading-bar">
-            <div class="match-loading-fill" id="matchLoadingFill"></div>
-          </div>
-          <p class="match-loading-status" id="matchLoadingStatus">Initializing AI agents…</p>
+      <!-- Results -->
+      <div class="match-results" id="matchResults" hidden>
+        <div class="match-results-header">
+          <h3>Your Matches</h3>
+          <span class="results-mode" id="resultsMode"></span>
         </div>
-
-        <!-- Results -->
-        <div class="match-results" id="matchResults" hidden>
-          <div class="match-results-header">
-            <h3>Your Matches</h3>
-            <span class="results-mode" id="resultsMode"></span>
-          </div>
-          <div class="results-list" id="resultsList"></div>
-          <p class="match-select-hint">Select the VCs you want to generate outreach for ↓</p>
-          <div class="step-advance">
-            <button class="btn btn-primary" id="toStep3Btn" disabled>Generate Outreach for Selected →</button>
-          </div>
-        </div>
-
-        <!-- Error -->
-        <div class="match-error" id="matchError" hidden>
-          <p id="matchErrorText"></p>
+        <div class="results-list" id="resultsList"></div>
+        <p class="match-select-hint">Select the VCs you want to generate outreach for ↓</p>
+        <div class="step-advance">
+          <button class="btn btn-primary" id="toStep3Btn" disabled>Generate Outreach for Selected →</button>
         </div>
       </div>
+
+      <!-- Error -->
+      <div class="match-error" id="matchError" hidden>
+        <p id="matchErrorText"></p>
+      </div>
+    </div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════
@@ -205,7 +192,8 @@
       <!-- RAG Depth Slider -->
       <div class="gen-depth">
         <div class="gen-depth-header">
-          <label for="ragDepth">Brain Detail Level <span class="depth-tooltip" title="How deep should the AI search the uploaded documents?">ⓘ</span></label>
+          <label for="ragDepth">Brain Detail Level <span class="depth-tooltip"
+              title="How deep should the AI search the uploaded documents?">ⓘ</span></label>
           <span class="depth-value" id="ragDepthVal">Standard</span>
         </div>
         <input type="range" id="ragDepth" class="depth-slider" min="1" max="3" value="2" step="1">
@@ -228,7 +216,8 @@
       <!-- Custom Prompt Box -->
       <div class="gen-custom-box" id="genCustomBox" hidden>
         <label for="genCustomPrompt" class="custom-prompt-label">What do you want to generate or edit?</label>
-        <textarea id="genCustomPrompt" class="custom-prompt-input" rows="3" placeholder="e.g. 'Write a 3-page technical whitepaper', 'Create 5 FAQ questions', or 'Make the email more aggressive'"></textarea>
+        <textarea id="genCustomPrompt" class="custom-prompt-input" rows="3"
+          placeholder="e.g. 'Write a 3-page technical whitepaper', 'Create 5 FAQ questions', or 'Make the email more aggressive'"></textarea>
       </div>
 
       <div class="gen-action">

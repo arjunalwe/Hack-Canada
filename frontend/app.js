@@ -4,7 +4,7 @@
 ═══════════════════════════════════════════════════════ */
 'use strict';
 
-const API = 'http://localhost:8000';
+const API = 'https://hack-canada.onrender.com';
 
 /* ── Pipeline state ──────────────────────────────── */
 const state = {
@@ -73,26 +73,14 @@ if (startStaticBtn) {
     });
 }
 
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (window.Auth0) window.Auth0.logout();
-    });
-}
+
 
 /* ── Utility ─────────────────────────────────────── */
 function escHtml(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function authHeaders(extra = {}) {
-    const headers = { ...extra };
-    if (window.Auth0 && window.Auth0.getToken()) {
-        headers['Authorization'] = `Bearer ${window.Auth0.getToken()}`;
-    }
-    return headers;
-}
+
 
 /* ═══════════════════════════════════════════════════════
    STEP 1 — UPLOAD & SYNTHESIZE
@@ -131,7 +119,7 @@ function authHeaders(extra = {}) {
             try {
                 const fd = new FormData();
                 fd.append('file', file);
-                const res = await fetch(`${API}/api/brain/upload`, { method: 'POST', body: fd, headers: authHeaders() });
+                const res = await fetch(`${API}/api/brain/upload`, { method: 'POST', body: fd });
                 if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || res.statusText);
                 const data = await res.json();
                 const st = row.querySelector('.brain-file-status');
@@ -151,10 +139,14 @@ function authHeaders(extra = {}) {
         synthText.hidden = true; synthLoad.hidden = false; synthBtn.disabled = true;
         errBox.hidden = true; resultBox.hidden = true;
         try {
-            const res = await fetch(`${API}/api/brain/synthesize`, { method: 'POST', headers: authHeaders() });
+            const res = await fetch(`${API}/api/brain/synthesize`, { method: 'POST' });
             if (!res.ok) throw new Error(await res.text());
             const data = await res.json();
-            state.synthesis = data.synthesis || data;
+            let synthData = data.synthesis || data;
+            if (typeof synthData === 'string') {
+                try { synthData = JSON.parse(synthData); } catch (e) { console.warn("Failed to parse synthesis string"); }
+            }
+            state.synthesis = synthData;
             const concept = state.synthesis?.pitchable_concept || {};
             const profile = state.synthesis?.startup_profile || {};
             const vc = state.synthesis?.vc_readiness || {};
@@ -200,10 +192,12 @@ function authHeaders(extra = {}) {
     const loadingStatus = $('#matchLoadingStatus');
 
     const LOADING_PHASES = [
-        { pct: 20, text: 'Running pre-filter algorithms…', delay: 0 },
-        { pct: 50, text: 'Cross-referencing startup data with VC databases…', delay: 2000 },
-        { pct: 75, text: 'AI reasoning: Evaluating fit and writing justifications…', delay: 5000 },
-        { pct: 95, text: 'Finalizing matched investor profiles…', delay: 10000 },
+        { pct: 15, text: 'Pre-filtering 30 VCs with algorithmic scorer…', delay: 0 },
+        { pct: 30, text: 'Agent A: Analyzing VC investment theses…', delay: 3000 },
+        { pct: 50, text: 'Agent B: Running Advocate vs Critic debate…', delay: 8000 },
+        { pct: 75, text: 'Agent C: Computing M(S,V) with tool calling…', delay: 15000 },
+        { pct: 90, text: 'Ranking final results by formula score…', delay: 25000 },
+        { pct: 95, text: 'Almost done — finalizing verdicts…', delay: 40000 },
     ];
 
     let loadingTimers = [];
@@ -242,24 +236,30 @@ function authHeaders(extra = {}) {
 
         const concept = state.synthesis?.pitchable_concept || {};
         const profile = state.synthesis?.startup_profile || {};
+        const ip = state.synthesis?.ip_analysis || {};
         const payload = {
             name: concept.startup_name || 'My Startup',
             sector: profile.sector || 'AI',
             stage: profile.stage || 'seed',
-            description: concept.elevator_pitch || '',
+            description: concept.elevator_pitch || profile.description || '',
             location: profile.location || 'Canada',
+            tech_stack: profile.tech_stack || [],
+            funding_ask: profile.funding_ask || null,
+            elevator_pitch: concept.elevator_pitch || '',
+            target_market: profile.target_market || '',
         };
 
         try {
-            const res = await fetch(`${API}/api/match/smart?top_n=5`, {
+            const res = await fetch(`${API}/api/match/agentic?top_n=5`, {
                 method: 'POST',
-                headers: authHeaders({ 'Content-Type': 'application/json' }),
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
             if (!res.ok) throw new Error(await res.text());
             const data = await res.json();
             state.matches = data.matches || [];
-            modeEl.textContent = '🤖 Agentic AI (Backboard)';
+            state.matchPipeline = data.pipeline || {};
+            modeEl.textContent = '🤖 3-Agent Debate Pipeline (Backboard)';
             stopLoadingBar(true);
             renderMatches();
             resultsEl.hidden = false;
@@ -291,6 +291,38 @@ function authHeaders(extra = {}) {
             const item = document.createElement('div');
             item.className = 'result-item';
             item.style.animationDelay = `${i * 0.08}s`;
+
+            // Formula breakdown
+            const fb = m.formula_breakdown || {};
+            const formulaHtml = fb.raw_M !== undefined ? `
+                <div class="result-formula">
+                    <span class="formula-label">M(S,V) = </span>
+                    <span class="formula-val formula-pos">${(fb.alpha_sim ?? 0).toFixed(2)} sim</span>
+                    <span class="formula-op">−</span>
+                    <span class="formula-val formula-neg">${(fb.beta_stage ?? 0).toFixed(2)} Δstage</span>
+                    <span class="formula-op">−</span>
+                    <span class="formula-val formula-neg">${(fb.gamma_debate ?? 0).toFixed(2)} debate</span>
+                </div>` : '';
+
+            // Debate log
+            const debateLog = m.debate_log || [];
+            const debateSummary = m.debate_summary || '';
+            const debateWinner = m.debate_winner || '';
+            let debateHtml = '';
+            if (debateLog.length > 0) {
+                const turns = debateLog.map(d =>
+                    `<div class="debate-turn debate-turn--${d.role}"><span class="debate-role">${d.role === 'advocate' ? '🟢 Advocate' : '🔴 Critic'}</span> ${escHtml(d.text)}</div>`
+                ).join('');
+                debateHtml = `
+                    <details class="debate-details">
+                        <summary class="debate-toggle">
+                            ${debateSummary ? escHtml(debateSummary) : 'View debate transcript'}
+                            ${debateWinner ? ` · Winner: <strong>${escHtml(debateWinner)}</strong>` : ''}
+                        </summary>
+                        <div class="debate-log">${turns}</div>
+                    </details>`;
+            }
+
             item.innerHTML = `
                 <label class="result-check"><input type="checkbox" data-idx="${i}" checked /><span class="checkmark"></span></label>
                 <div class="result-rank">${i + 1}</div>
@@ -298,7 +330,9 @@ function authHeaders(extra = {}) {
                     <div class="result-name">${nameHtml}</div>
                     ${verdict ? `<span class="result-verdict result-verdict--${vClass}">${escHtml(verdict)}</span>` : ''}
                     ${reasoning ? `<div class="result-reasoning">${escHtml(reasoning)}</div>` : ''}
+                    ${formulaHtml}
                     ${approach ? `<div class="result-approach">💡 ${escHtml(approach)}</div>` : ''}
+                    ${debateHtml}
                 </div>
                 <div class="result-score-area">
                     ${score !== '' ? `<div class="result-score">${escHtml(String(score))}<span class="score-unit">/100</span></div>` : ''}
@@ -469,7 +503,7 @@ function authHeaders(extra = {}) {
         try {
             const res = await fetch(`${API}${endpoint}`, {
                 method: 'POST',
-                headers: authHeaders({ 'Content-Type': 'application/json' }),
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
             if (!res.ok) throw new Error(await res.text());
@@ -606,11 +640,14 @@ function populateStep4() {
         const profile = state.synthesis?.startup_profile || {};
         const ip = state.synthesis?.ip_analysis || {};
 
-        const vcName = vc.fund_name || vc.name || 'Sequoia Capital';
-        const vcMandate = vc.sector_mandate || vc.real_thesis || 'AI';
-        const vcStyle = styleSelect?.value || 'standard';
+        const fundName = vc.fund_name || vc.name || 'Unknown VC';
+        const mandate = vc.sector_mandate || vc.real_thesis || 'General tech';
 
-        // Build a rich startup pitch from synthesis
+        const payload = {
+            vc_name: fundName,
+            vc_mandate: mandate,
+            vc_style: styleSelect?.value,
+        };
         const pitch = [
             concept.elevator_pitch || '',
             concept.problem ? `Problem: ${concept.problem}` : '',

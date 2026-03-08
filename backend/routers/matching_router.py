@@ -1,10 +1,9 @@
 """Matching API routes — match a startup profile to the best VCs."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
-from auth.auth0 import get_current_user
 from matching.matcher import get_top_matches
 from matching.agentic_matcher import run_agentic_matching
 from scraper.scraper import load_vc_database
@@ -27,13 +26,14 @@ class StartupProfile(BaseModel):
     )
     location: Optional[str] = Field(default="Canada", examples=["Toronto, Ontario"])
     funding_ask: Optional[float] = Field(default=None, examples=[500000])
+    elevator_pitch: Optional[str] = Field(default=None)
+    target_market: Optional[str] = Field(default=None)
 
 
 @router.post("/")
 async def match_startup(
     profile: StartupProfile,
     top_n: int = 10,
-    user: dict = Depends(get_current_user),
 ):
     """Fast algorithmic matching — returns top-N VCs using weighted scoring."""
     vc_database = load_vc_database()
@@ -45,7 +45,6 @@ async def match_startup(
 async def match_startup_smart(
     profile: StartupProfile,
     top_n: int = 5,
-    user: dict = Depends(get_current_user),
 ):
     """Smart hybrid matching — fast pre-filter + single AI reasoning call.
 
@@ -135,26 +134,27 @@ Return ONLY a valid JSON array, no markdown."""
 async def match_startup_agentic(
     profile: StartupProfile,
     top_n: int = 5,
-    user: dict = Depends(get_current_user),
 ):
-    """Agentic AI matching — runs a multi-agent pipeline with Backboard.io.
+    """Agentic AI matching — 3-agent debate pipeline with Backboard.io.
 
-    Uses 3 specialized AI agents:
-    1. Startup Analyst — deep analysis of the startup
-    2. VC Profiler — analyzes each candidate VC's real thesis
-    3. Match Reasoner — produces detailed match justifications
+    Formula: M(S,V) = α·sim(v_S,v_V) - β·Δ_stage - γ·P_debate
 
-    Note: This takes 30-90 seconds due to multiple LLM calls.
+    3 Agents (all Backboard-powered):
+    - Agent A: VC Thesis Analyst (memory="Auto" for cross-session recall)
+    - Agent B: Debate Pair — Startup Advocate vs VC Critic (shared thread)
+    - Agent C: Final Arbiter — tool calling for compute_match_metrics
+
+    Note: ~20s per VC with parallel processing.
     """
     vc_database = load_vc_database()
     result = await run_agentic_matching(
         profile.model_dump(), vc_database, top_n=top_n
     )
-    return {"mode": "agentic", **result}
+    return result
 
 
 @router.get("/demo")
-async def match_demo(user: dict = Depends(get_current_user)):
+async def match_demo():
     """Quick demo — fast-matches a sample AI startup to the VC database."""
     sample = {
         "name": "Demo AI Startup",
@@ -171,7 +171,7 @@ async def match_demo(user: dict = Depends(get_current_user)):
 
 
 @router.get("/agentic/demo")
-async def match_demo_agentic(user: dict = Depends(get_current_user)):
+async def match_demo_agentic():
     """Agentic demo — runs the full multi-agent pipeline on a sample startup.
 
     Takes 30-90 seconds. Watch the server logs to see each agent working.

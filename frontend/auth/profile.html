@@ -12,10 +12,11 @@
             domain: "dev-uzi6d8f6w5w0310c.us.auth0.com",
             clientId: "9CXr4jjIGbVealhzVYwwYPCI1ePrThbr",
             audience: "",
-            redirectUri: window.location.origin + "/auth/callback.html",
-            apiBase: "http://localhost:8000",
+            redirectUri: window.location.origin + "/auth/callback.html", // <--- Use this instead!
+            apiBase: window.location.hostname === 'localhost' ? "http://localhost:8000" : "https://hack-canada.onrender.com",
         };
     </script>
+
 </head>
 
 <body>

@@ -4,7 +4,6 @@ import os
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException
 from pydantic import BaseModel, Field
 
-from auth.auth0 import get_current_user
 from brain.document_analyzer import analyzer, UPLOADS_DIR, ALLOWED_EXTENSIONS
 
 router = APIRouter()
@@ -21,7 +20,6 @@ class QuestionRequest(BaseModel):
 @router.post("/upload")
 async def upload_document(
     file: UploadFile = File(...),
-    user: dict = Depends(get_current_user),
 ):
     """Upload any document for analysis.
 
@@ -46,7 +44,7 @@ async def upload_document(
 
 
 @router.post("/synthesize")
-async def synthesize_pitch(user: dict = Depends(get_current_user)):
+async def synthesize_pitch():
     """The main event: turn uploaded raw materials into a pitchable startup concept.
 
     Takes ALL uploaded documents — research papers, code, slides, patents,
@@ -64,7 +62,7 @@ async def synthesize_pitch(user: dict = Depends(get_current_user)):
 
 
 @router.post("/analyze")
-async def analyze_documents(user: dict = Depends(get_current_user)):
+async def analyze_documents():
     """Extract a structured startup profile from uploaded documents.
 
     More focused than /synthesize — just extracts facts and data
@@ -77,7 +75,6 @@ async def analyze_documents(user: dict = Depends(get_current_user)):
 @router.post("/ask")
 async def ask_about_documents(
     request: QuestionRequest,
-    user: dict = Depends(get_current_user),
 ):
     """Ask any question about your uploaded documents.
 
@@ -89,14 +86,14 @@ async def ask_about_documents(
 
 
 @router.get("/documents")
-async def list_documents(user: dict = Depends(get_current_user)):
+async def list_documents():
     """List all uploaded documents and their indexing status."""
     docs = analyzer.get_uploaded_documents()
     return {"count": len(docs), "documents": docs}
 
 
 @router.post("/reset")
-async def reset_analyzer(user: dict = Depends(get_current_user)):
+async def reset_analyzer():
     """Reset the Brain for a new session — clears all uploaded documents."""
     analyzer.reset()
     return {"status": "reset", "message": "Ready for new document uploads"}

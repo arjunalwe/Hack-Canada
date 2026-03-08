@@ -1022,6 +1022,81 @@ body::before {
     text-transform: capitalize;
 }
 
+/* ── Formula Breakdown ────────────────────────────── */
+.result-formula {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.formula-label { color: var(--text-subtle); }
+.formula-op { color: var(--text-muted); }
+.formula-pos { color: #5cff7e; }
+.formula-neg { color: #ff5c5c; }
+
+/* ── Debate Log ──────────────────────────────────── */
+.debate-details {
+    margin-top: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.debate-toggle {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    color: var(--text-subtle);
+    cursor: pointer;
+    user-select: none;
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.debate-toggle:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.debate-log {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+}
+
+.debate-turn {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: var(--text-muted);
+}
+
+.debate-turn--advocate {
+    background: rgba(92, 255, 126, 0.05);
+    border-left: 2px solid #5cff7e;
+}
+
+.debate-turn--critic {
+    background: rgba(255, 92, 92, 0.05);
+    border-left: 2px solid #ff5c5c;
+}
+
+.debate-role {
+    font-weight: 600;
+    color: var(--text);
+    margin-right: 6px;
+}
+
 /* ═══════════════════════════════════════════════════════
    STEP 3 — GENERATE
 ═══════════════════════════════════════════════════════ */
