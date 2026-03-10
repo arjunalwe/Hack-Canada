@@ -1,6 +1,4 @@
-# 💸 RAGs to Riches
-
-**Built for HackCanada 2026** An end-to-end, autonomous fundraising co-pilot and adversarial VC simulator. We built a multi-agent AI system that translates dense technical IP into an institutional investment thesis, matches founders with local Canadian capital, and ruthlessly simulates the boardroom pitch.
+An end-to-end, autonomous fundraising co-pilot and adversarial VC simulator. We built a multi-agent AI system that translates dense technical IP into an institutional investment thesis, matches founders with local Canadian capital, and ruthlessly simulates the boardroom pitch.
 
 ## ⚠️ The Problem: Ecosystem Friction & Brain Drain
 The corridor spanning Waterloo to Toronto produces some of the highest-caliber engineering talent and technical IP in the world. However, the translation layer between student builders and institutional capital is fundamentally broken. Founders speak in GitHub commits and theoretical breakthroughs; VCs speak in term sheets and market fit. Because of this friction, incredible local startups bleed out to US acquirers simply because navigating the Canadian funding landscape is too opaque. 
